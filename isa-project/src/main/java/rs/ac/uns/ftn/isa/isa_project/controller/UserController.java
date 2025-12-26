@@ -44,9 +44,7 @@ public class UserController {
             return ResponseEntity.status(401).body("Niste ulogovani!");
         }
 
-        String email = authentication.getName(); // Email iz JWT tokena
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
+        User user = (User) authentication.getPrincipal();
 
         return ResponseEntity.ok(user);
     }
