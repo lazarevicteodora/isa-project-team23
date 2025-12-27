@@ -1,0 +1,53 @@
+<div class="home-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>🎥 Jutjubić</h1>
+    </div>
+    <div class="navbar-menu">
+      <span *ngIf="currentUser" class="user-greeting">
+        Zdravo, {{ currentUser.firstName }}!
+      </span>
+      <button class="btn btn-logout" (click)="logout()">Odjavi se</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <p>Učitavanje...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage && !loading" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <!-- User info -->
+    <div *ngIf="currentUser && !loading" class="user-card">
+      <h2>Dobrodošao/la, {{ currentUser.firstName }} {{ currentUser.lastName }}! 🎉</h2>
+      
+      <div class="user-info">
+        <p><strong>Email:</strong> {{ currentUser.email }}</p>
+        <p><strong>Korisničko ime:</strong> {{ currentUser.username }}</p>
+        <p><strong>Adresa:</strong> {{ currentUser.address }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge" [class.badge-success]="currentUser.activated" [class.badge-warning]="!currentUser.activated">
+            {{ currentUser.activated ? 'Aktiviran' : 'Neaktiviran' }}
+          </span>
+        </p>
+        <p *ngIf="currentUser.roles && currentUser.roles.length > 0">
+          <strong>Role:</strong> 
+          <span *ngFor="let role of currentUser.roles" class="badge badge-info">
+            {{ role.name }}
+          </span>
+        </p>
+      </div>
+
+      <div class="welcome-message">
+        <h3>🚀 Dobrodošli na Jutjubić platformu!</h3>
+        <p>Ovo je YouTube-like platforma za deljenje video sadržaja.</p>
+        <p><strong>Princip:</strong> BEZ REKLAMA - IKADA! 🎯</p>
+      </div>
+    </div>
+  </div>
+</div>

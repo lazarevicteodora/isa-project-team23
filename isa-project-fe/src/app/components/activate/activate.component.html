@@ -1,0 +1,32 @@
+<div class="activate-container">
+  <div class="activate-card">
+    <h2>Aktivacija naloga</h2>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Aktivacija naloga u toku...</p>
+    </div>
+
+    <!-- Success message -->
+    <div *ngIf="successMessage && !loading" class="message-box success">
+      <div class="icon">✅</div>
+      <h3>Uspešno!</h3>
+      <p>{{ successMessage }}</p>
+      <p class="redirect-info">Bićete preusmereni na stranicu za prijavu za 3 sekunde...</p>
+      <button class="btn btn-primary" (click)="goToLogin()">
+        Idi na prijavu odmah
+      </button>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage && !loading" class="message-box error">
+      <div class="icon">❌</div>
+      <h3>Greška</h3>
+      <p>{{ errorMessage }}</p>
+      <button class="btn btn-primary" (click)="goToLogin()">
+        Idi na prijavu
+      </button>
+    </div>
+  </div>
+</div>
