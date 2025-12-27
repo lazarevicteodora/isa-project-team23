@@ -1,0 +1,127 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>Registracija</h2>
+    
+    <!-- Success message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          [(ngModel)]="registerData.email" 
+          required
+          email
+          class="form-control"
+          placeholder="primer@email.com">
+      </div>
+
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username">Korisničko ime *</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username"
+          [(ngModel)]="registerData.username" 
+          required
+          minlength="3"
+          maxlength="64"
+          class="form-control"
+          placeholder="korisnicko_ime">
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Lozinka *</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          [(ngModel)]="registerData.password" 
+          required
+          minlength="6"
+          maxlength="32"
+          class="form-control password-input"
+          placeholder="••••••••">
+      </div>
+
+      <!-- Password confirmation -->
+      <div class="form-group">
+        <label for="password2">Potvrda lozinke *</label>
+        <input 
+          type="password" 
+          id="password2" 
+          name="password2"
+          [(ngModel)]="registerData.password2" 
+          required
+          class="form-control password-input"
+          placeholder="••••••••">
+      </div>
+
+      <!-- First name -->
+      <div class="form-group">
+        <label for="firstName">Ime *</label>
+        <input 
+          type="text" 
+          id="firstName" 
+          name="firstName"
+          [(ngModel)]="registerData.firstName" 
+          required
+          class="form-control"
+          placeholder="Ime">
+      </div>
+
+      <!-- Last name -->
+      <div class="form-group">
+        <label for="lastName">Prezime *</label>
+        <input 
+          type="text" 
+          id="lastName" 
+          name="lastName"
+          [(ngModel)]="registerData.lastName" 
+          required
+          class="form-control"
+          placeholder="Prezime">
+      </div>
+
+      <!-- Address -->
+      <div class="form-group">
+        <label for="address">Adresa *</label>
+        <input 
+          type="text" 
+          id="address" 
+          name="address"
+          [(ngModel)]="registerData.address" 
+          required
+          class="form-control"
+          placeholder="Ulica, Grad">
+      </div>
+
+      <!-- Submit button -->
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="!registerForm.form.valid || loading">
+        <span *ngIf="!loading">Registruj se</span>
+        <span *ngIf="loading">Registracija u toku...</span>
+      </button>
+
+      <!-- Link to login -->
+      <p class="text-center mt-3">
+        Već imaš nalog? <a routerLink="/login">Prijavi se</a>
+      </p>
+    </form>
+  </div>
+</div>
