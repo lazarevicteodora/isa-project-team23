@@ -49,9 +49,8 @@ label {
   border-color: #667eea;
 }
 
-/* TAMNO CRVENA SLOVA ZA LOZINKU */
 .password-input {
-  color: #8B0000 !important;
+  color: black;
   font-weight: 600;
   letter-spacing: 2px;
 }
