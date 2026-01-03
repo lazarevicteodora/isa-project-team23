@@ -4,10 +4,21 @@
       <h1>🎥 Jutjubić</h1>
     </div>
     <div class="navbar-menu">
+      <!-- Show user info if logged in -->
       <span *ngIf="currentUser" class="user-greeting">
         Zdravo, {{ currentUser.firstName }}!
       </span>
-      <button class="btn btn-logout" (click)="logout()">Odjavi se</button>
+      
+      <!-- Show login/register buttons if NOT logged in -->
+      <div *ngIf="!currentUser">
+        <button class="btn btn-primary" routerLink="/login">Prijavi se</button>
+        <button class="btn btn-secondary" routerLink="/register">Registruj se</button>
+      </div>
+      
+      <!-- Show logout if logged in -->
+      <button *ngIf="currentUser" class="btn btn-logout" (click)="logout()">Odjavi se</button>
+      <button class="btn btn-upload-nav" routerLink="/upload">Postavi Video</button>
+
     </div>
   </nav>
 
@@ -22,7 +33,7 @@
       {{ errorMessage }}
     </div>
 
-    <!-- User info -->
+    <!-- User info (only if logged in) -->
     <div *ngIf="currentUser && !loading" class="user-card">
       <h2>Dobrodošao/la, {{ currentUser.firstName }} {{ currentUser.lastName }}! 🎉</h2>
       
@@ -42,11 +53,46 @@
           </span>
         </p>
       </div>
+    </div>
 
-      <div class="welcome-message">
-        <h3>🚀 Dobrodošli na Jutjubić platformu!</h3>
-        <p>Ovo je YouTube-like platforma za deljenje video sadržaja.</p>
-        <p><strong>Princip:</strong> BEZ REKLAMA - IKADA! 🎯</p>
+    <!-- Welcome message (for everyone) -->
+    <div class="welcome-message" *ngIf="!loading">
+      <h3>🚀 Dobrodošli na Jutjubić platformu!</h3>
+      <p>Ovo je YouTube-like platforma za deljenje video sadržaja.</p>
+      <p><strong>Princip:</strong> BEZ REKLAMA - IKADA! 🎯</p>
+    </div>
+
+    <!-- Videos (for everyone) -->
+    <div *ngIf="videos.length === 0 && !loading">
+      <p>Trenutno nema videa.</p>
+    </div>
+
+    <div class="video-list" *ngIf="videos.length > 0">
+      <div class="video-card" *ngFor="let video of videos">
+        <h3>{{ video.title }}</h3>
+        <p>{{ video.description }}</p>
+
+        <!-- Thumbnail -->
+        <img 
+          [src]="video.thumbnailUrl" 
+          alt="Thumbnail" 
+          width="200"
+          (error)="onImgError($event)">
+
+        <!-- Dugme za reprodukciju -->
+        <button (click)="toggleVideo(video)">
+          {{ video.showVideo ? 'Zaustavi' : 'Pusti' }}
+        </button>
+
+        <!-- Video element -->
+        <video 
+          *ngIf="video.showVideo" 
+          width="400" 
+          controls 
+          autoplay>
+          <source [src]="video.videoUrl" type="video/mp4">
+          Vas pretrazivac ne podrzava video tag.
+        </video>
       </div>
     </div>
   </div>

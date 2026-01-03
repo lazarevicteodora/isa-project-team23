@@ -1,0 +1,66 @@
+<div class="landing-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Jutjubić</h1>
+    </div>
+    <div class="navbar-menu">
+  <button class="btn btn-upload" routerLink="/upload">Postavi Video</button>
+  <button class="btn btn-primary" routerLink="/login">Prijavi se</button>
+  <button class="btn btn-secondary" routerLink="/register">Registruj se</button>
+</div>
+  </nav>
+
+  <div class="content">
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <p>Učitavanje...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage && !loading" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Welcome message -->
+    <div class="welcome-message" *ngIf="!loading">
+      <h3>🚀 Dobrodošli na Jutjubić platformu!</h3>
+      <p>Ovo je YouTube-like platforma za deljenje video sadržaja.</p>
+      <p><strong>Princip:</strong> BEZ REKLAMA - IKADA! 🎯</p>
+    </div>
+
+    <!-- No videos -->
+    <div *ngIf="videos.length === 0 && !loading">
+      <p>Trenutno nema videa.</p>
+    </div>
+
+    <!-- Video list -->
+    <div class="video-list" *ngIf="videos.length > 0">
+      <div class="video-card" *ngFor="let video of videos">
+        <h3>{{ video.title }}</h3>
+        <p>{{ video.description }}</p>
+
+        <!-- Thumbnail -->
+        <img 
+          [src]="video.thumbnailUrl" 
+          alt="Thumbnail" 
+          width="200"
+          (error)="onImgError($event)">
+
+        <!-- Play button -->
+        <button (click)="toggleVideo(video)">
+          {{ video.showVideo ? 'Zaustavi' : 'Pusti' }}
+        </button>
+
+        <!-- Video element -->
+        <video 
+          *ngIf="video.showVideo" 
+          width="400" 
+          controls 
+          autoplay>
+          <source [src]="video.videoUrl" type="video/mp4">
+          Vas pretrazivac ne podrzava video tag.
+        </video>
+      </div>
+    </div>
+  </div>
+</div>

@@ -15,6 +15,8 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { ActivateComponent } from './components/activate/activate.component';
+import { LandingComponent } from './components/landing/landing.component';
+import { VideoUploadComponent } from './components/video-upload/video-upload.component'; 
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { ActivateComponent } from './components/activate/activate.component';
     LoginComponent,
     RegisterComponent,
     HomeComponent,
-    ActivateComponent
+    ActivateComponent,
+    LandingComponent,
+    VideoUploadComponent,
   ],
   imports: [
     BrowserModule,

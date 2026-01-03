@@ -1,0 +1,153 @@
+<div class="upload-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Jutjubić - Upload Video</h1>
+    </div>
+    <div class="navbar-menu">
+      <button class="btn btn-secondary" routerLink="/home">Početna</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="upload-card">
+      <h2>🎬 Postavi Novi Video</h2>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <form *ngIf="!uploading" (ngSubmit)="uploadVideo()">
+        
+        <!-- Naslov -->
+        <div class="form-group">
+          <label for="title">Naslov *</label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="title" 
+            name="title"
+            placeholder="Unesite naslov videa"
+            maxlength="100"
+            required>
+        </div>
+
+        <!-- Opis -->
+        <div class="form-group">
+          <label for="description">Opis *</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="description" 
+            name="description"
+            placeholder="Opišite svoj video"
+            rows="4"
+            maxlength="500"
+            required></textarea>
+        </div>
+
+        <!-- Tagovi -->
+        <div class="form-group">
+          <label for="tags">Tagovi *</label>
+          <div class="tags-input-wrapper">
+            <input 
+              type="text" 
+              id="tags" 
+              [(ngModel)]="tagsInput" 
+              name="tagsInput"
+              placeholder="Dodajte tagove (odvojene zarezom)"
+              (keyup.enter)="addTag()">
+            <button type="button" class="btn btn-add-tag" (click)="addTag()">
+              Dodaj
+            </button>
+          </div>
+          
+          <!-- Prikaz tagova -->
+          <div class="tags-list" *ngIf="tags.length > 0">
+            <span *ngFor="let tag of tags" class="tag">
+              {{ tag }}
+              <button type="button" (click)="removeTag(tag)" class="tag-remove">×</button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Thumbnail -->
+        <div class="form-group">
+          <label for="thumbnail">Thumbnail Slika *</label>
+          <input 
+            type="file" 
+            id="thumbnail" 
+            accept="image/*"
+            (change)="onThumbnailSelected($event)"
+            required>
+          
+          <!-- Thumbnail Preview -->
+          <div *ngIf="thumbnailPreview" class="preview">
+            <img [src]="thumbnailPreview" alt="Thumbnail preview">
+          </div>
+        </div>
+
+        <!-- Video -->
+        <div class="form-group">
+          <label for="video">Video Fajl (MP4, max 200MB) *</label>
+          <input 
+            type="file" 
+            id="video" 
+            accept="video/mp4"
+            (change)="onVideoSelected($event)"
+            required>
+          
+          <!-- Video Preview -->
+          <div *ngIf="videoPreview" class="preview">
+            <video [src]="videoPreview" controls width="300"></video>
+          </div>
+        </div>
+
+        <!-- Geografska lokacija -->
+        <div class="form-group">
+          <label>Geografska Lokacija (opciono)</label>
+          <div class="location-wrapper">
+            <input 
+              type="number" 
+              [(ngModel)]="latitude" 
+              name="latitude"
+              placeholder="Latitude"
+              step="any">
+            <input 
+              type="number" 
+              [(ngModel)]="longitude" 
+              name="longitude"
+              placeholder="Longitude"
+              step="any">
+            <button type="button" class="btn btn-location" (click)="getCurrentLocation()">
+              📍 Dobij Lokaciju
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-upload">
+             Postavi Video
+          </button>
+          <button type="button" class="btn btn-reset" (click)="resetForm()">
+            Resetuj
+          </button>
+        </div>
+      </form>
+
+      <!-- Upload Progress -->
+      <div *ngIf="uploading" class="upload-progress">
+        <h3>Upload u toku... {{ uploadProgress }}%</h3>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+        </div>
+        <p>Molimo sačekajte, ne zatvarajte stranicu...</p>
+      </div>
+    </div>
+  </div>
+</div>

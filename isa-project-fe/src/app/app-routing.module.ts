@@ -4,14 +4,23 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { ActivateComponent } from './components/activate/activate.component';
+import { LandingComponent } from './components/landing/landing.component';
+import { AuthGuard } from '../app/guards/auth.guard'; 
+import { VideoUploadComponent } from './components/video-upload/video-upload.component';
+
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', component: LandingComponent },  
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'home', component: HomeComponent },
+  { path: 'home', component: HomeComponent },  
+  { 
+    path: 'upload',                              
+    component: VideoUploadComponent,
+    canActivate: [AuthGuard]                     
+  },
   { path: 'activate/:token', component: ActivateComponent },
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '' }  
 ];
 
 @NgModule({
