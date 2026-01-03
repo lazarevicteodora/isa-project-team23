@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xsi:schemaLocation="http://www.ehcache.org/v3
+        http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+
+    <!-- Keš za thumbnail slike -->
+    <cache alias="thumbnails">
+        <!-- Tip ključa (videoId je Long) -->
+        <key-type>java.lang.Long</key-type>
+
+        <!-- Tip vrednosti (byte[] za slike) -->
+        <value-type>[B</value-type>
+
+        <!-- Expiry - kada se thumbnail briše iz keša -->
+        <expiry>
+            <ttl unit="hours">1</ttl>
+        </expiry>
+
+        <!-- Resursi - max 50 thumbnail-a u RAM-u -->
+        <resources>
+            <heap unit="entries">50</heap>
+        </resources>
+    </cache>
+
+</config>

@@ -36,11 +36,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        LOGGER.debug("Zahtev ka URI: " + request.getRequestURI() + " metoda: " + request.getMethod());
 
         String email;
 
         // 1. Preuzimanje JWT tokena iz zahteva (iz Authorization header-a)
         String authToken = tokenUtils.getToken(request);
+        LOGGER.debug("Zahtev ka URI: " + request.getRequestURI() + " metoda: " + request.getMethod());
 
         try {
             if (authToken != null) {
@@ -52,9 +54,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
                     // 3. Preuzimanje korisnika iz baze na osnovu email-a
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    LOGGER.debug("Token validan, postavljena autentifikacija za: " + email);
 
                     // 4. Provera da li je token validan
                     if (tokenUtils.validateToken(authToken, userDetails)) {
+                        LOGGER.debug("Token nije validan za: " + email);
 
                         // 5. Kreiranje autentifikacije i postavljanje u Security kontekst
                         TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
@@ -65,8 +69,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (ExpiredJwtException ex) {
-            LOGGER.debug("Token is expired!");
+            LOGGER.debug("Token je istekao!");
+        } catch (Exception ex) {
+            LOGGER.error("Filter je bacio exception:", ex);
         }
+
+        LOGGER.debug("Prosleđujem zahtev dalje u filter chain");
 
         // Prosledi zahtev dalje u sledeci filter
         chain.doFilter(request, response);

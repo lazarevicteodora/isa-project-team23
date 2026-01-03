@@ -99,29 +99,20 @@ public class WebSecurityConfig {
         );
 
         // Sve neautentifikovane zahteve obradi uniformno - vrati 401
-        /*http.exceptionHandling(exception ->
+        http.exceptionHandling(exception ->
                 exception.authenticationEntryPoint(restAuthenticationEntryPoint)
-        );*/
+        );
 
         // Definišemo koja ruta zahteva autentifikaciju
         http.authorizeHttpRequests(auth -> auth
-                // Javne rute - dostupne svima (bez autentifikacije)
-                .requestMatchers("/api/auth/**").permitAll()           // Login, Register, Activation
-                //.requestMatchers("/api/test/**").permitAll()           // Test endpoint
-                //.requestMatchers("/actuator/**").permitAll()           // Actuator health check
-                //.anyRequest().permitAll()
-                // Statički resursi - dostupni svima
-                //.requestMatchers(
-                  //      "/",
-                    //    "/favicon.ico",
-                      //  "/webjars/**",
-                        //"/css/**",
-                        //"/js/**",
-                        //"/images/**",
-                        //"/static/**"
-                //).permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
 
-                // SVE OSTALE rute zahtevaju autentifikaciju
+                // GET zahtevi za videe su javni (zadatak 3.1)
+                .requestMatchers(HttpMethod.GET, "/api/videos/**").permitAll()
+
+                // POST zahtevi zahtevaju autentifikaciju
+                .requestMatchers(HttpMethod.POST, "/api/videos/**").authenticated()
+
                 .anyRequest().authenticated()
         );
 
