@@ -3,24 +3,26 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Isti tamni gradijent kao na Login stranici */
+  background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
   padding: 20px;
 }
 
 .register-card {
   background: white;
   padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 500px;
+  max-width: 500px; /* Malo šire zbog više polja za unos */
 }
 
 h2 {
   text-align: center;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 30px;
   font-size: 28px;
+  font-weight: 700;
 }
 
 .form-group {
@@ -29,65 +31,54 @@ h2 {
 
 label {
   display: block;
-  margin-bottom: 5px;
-  color: #555;
-  font-weight: 500;
+  margin-bottom: 8px;
+  color: #34495e;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .form-control {
   width: 100%;
   padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
+  border: 2px solid #ecf0f1;
+  border-radius: 6px;
   font-size: 16px;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
   box-sizing: border-box;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #3498db; /* Tvoja plava boja */
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
 }
 
-.password-input {
-  color: black;
-  font-weight: 600;
-  letter-spacing: 2px;
-}
-
-.password-input::placeholder {
-  color: #cccccc;
-  letter-spacing: normal;
-}
-
-.btn {
+.btn-primary {
+  background-color: #3498db; /* Tvoja plava boja */
+  color: white;
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.btn-primary {
-  background-color: #667eea;
-  color: white;
-}
-
 .btn-primary:hover:not(:disabled) {
-  background-color: #5568d3;
+  background-color: #2980b9;
 }
 
 .btn-primary:disabled {
-  background-color: #cccccc;
+  background-color: #bdc3c7;
   cursor: not-allowed;
 }
 
+/* Alert poruke usklađene sa dizajnom */
 .alert {
   padding: 12px;
-  border-radius: 5px;
+  border-radius: 6px;
   margin-bottom: 20px;
   font-size: 14px;
 }
@@ -99,25 +90,18 @@ label {
 }
 
 .alert-error {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #fdeaea;
+  color: #c0392b;
   border: 1px solid #f5c6cb;
 }
 
-.text-center {
-  text-align: center;
-}
-
-.mt-3 {
-  margin-top: 15px;
-}
-
 a {
-  color: #667eea;
+  color: #3498db;
   text-decoration: none;
   font-weight: 600;
 }
 
 a:hover {
+  color: #2980b9;
   text-decoration: underline;
 }

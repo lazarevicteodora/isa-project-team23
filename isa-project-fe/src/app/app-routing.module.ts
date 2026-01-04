@@ -13,6 +13,8 @@ import { VideoDetailComponent } from './components/video-detail/video-detail.com
 const routes: Routes = [
   { path: '', component: LandingComponent },  
   { path: 'login', component: LoginComponent },
+  { path: '', component: LandingComponent },  
+  { path: 'home', component: LandingComponent }, // PROMENJENO: I home sad vodi na Landing
   { path: 'register', component: RegisterComponent },
   { path: 'home', component: HomeComponent },  
   { 

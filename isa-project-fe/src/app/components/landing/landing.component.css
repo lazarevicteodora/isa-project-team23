@@ -50,7 +50,36 @@
   background: #7f8c8d;
 }
 
+/* Dodatak za ulogovanog korisnika u navbaru */
+.user-greeting {
+  color: #ecf0f1;
+  margin-right: 10px;
+  align-self: center;
+  font-weight: 500;
+}
 
+.btn-logout {
+  background: #e74c3c;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-logout:hover {
+  background: #c0392b;
+}
+
+.btn-upload {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-upload:hover {
+  background: #219150;
+}
 
 .loading {
   text-align: center;
