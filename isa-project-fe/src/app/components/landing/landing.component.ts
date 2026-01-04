@@ -13,7 +13,7 @@ export class LandingComponent implements OnInit {
   errorMessage: string = '';
 
   constructor(private videoService: VideoService) {}
-
+  
   ngOnInit(): void {
     this.loadVideos();
   }
@@ -35,13 +35,6 @@ export class LandingComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  toggleVideo(video: Video): void {
-    this.videos.forEach(v => {
-      if (v !== video) v.showVideo = false;
-    });
-    video.showVideo = !video.showVideo;
   }
 
   onImgError(event: any): void {

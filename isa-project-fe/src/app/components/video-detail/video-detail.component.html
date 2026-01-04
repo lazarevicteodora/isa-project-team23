@@ -1,0 +1,90 @@
+<div class="video-detail-container">
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Jutjubić</h1>
+    </div>
+    <div class="navbar-menu">
+      <button class="btn btn-back" (click)="goBack()">
+        ← Početna
+      </button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Učitavanje videa...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !loading" class="error-container">
+      <div class="alert alert-error">
+        <h2>😞 Greška</h2>
+        <p>{{ errorMessage }}</p>
+        <button class="btn btn-primary" (click)="goBack()">
+          Vrati se na početnu
+        </button>
+      </div>
+    </div>
+
+    <!-- Video Content -->
+    <div *ngIf="video && !loading" class="video-content">
+      
+      <!-- Video Player -->
+      <div class="video-player-container">
+        <video 
+          class="video-player"
+          controls
+          autoplay>
+          <source [src]="video.videoUrl" type="video/mp4">
+          Vaš pretraživač ne podržava video tag.
+        </video>
+      </div>
+
+      <!-- Video Info Section -->
+      <div class="video-info-section">
+        
+        <!-- Title -->
+        <h1 class="video-title">{{ video.title }}</h1>
+
+        <!-- Meta Info (Views, Date, Author) -->
+        <div class="video-meta">
+          <span class="meta-item view-count">
+            👁️ {{ video.viewCount || 0 }} pregleda
+          </span>
+          <span class="meta-item date">
+            📅 {{ video.createdAt | date:'dd.MM.yyyy' }}
+          </span>
+          <span class="meta-item author" *ngIf="video.authorUsername">
+            👤 {{ video.authorUsername }}
+          </span>
+        </div>
+
+        <!-- Description -->
+        <div class="video-description">
+          <h3>Opis</h3>
+          <p>{{ video.description }}</p>
+        </div>
+
+        <!-- Tags (ako postoje) -->
+        <div class="video-tags" *ngIf="video.tags && video.tags.length > 0">
+          <h3>Tagovi</h3>
+          <div class="tags-list">
+            <span class="tag" *ngFor="let tag of video.tags">
+              #{{ tag }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Location (ako postoji) -->
+        <div class="video-location" *ngIf="video.latitude && video.longitude">
+          <h3>Lokacija</h3>
+          <p>📍 {{ video.latitude }}, {{ video.longitude }}</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
