@@ -106,11 +106,8 @@ public class WebSecurityConfig {
         // Definišemo koja ruta zahteva autentifikaciju
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-
-                // GET zahtevi za videe su javni (zadatak 3.1)
                 .requestMatchers(HttpMethod.GET, "/api/videos/**").permitAll()
-
-                // POST zahtevi zahtevaju autentifikaciju
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/videos/**").authenticated()
 
                 .anyRequest().authenticated()

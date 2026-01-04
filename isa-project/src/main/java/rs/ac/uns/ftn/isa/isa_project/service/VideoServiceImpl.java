@@ -80,6 +80,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Cacheable(value = "thumbnails", key = "#videoId")
     public byte[] getThumbnailContent(Long videoId) throws Exception {
+        System.out.println("DEBUG: Fajl se cita sa DISKA za ID: " + videoId);
         // Ova metoda se izvršava SAMO ako slika nije u kešu
         Video v = videoRepository.findById(videoId)
                 .orElseThrow(() -> new Exception("Video nije pronađen"));
@@ -94,10 +95,28 @@ public class VideoServiceImpl implements VideoService {
                 .orElseThrow(() -> new Exception("Video nije pronađen"));
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public List<Video> getAllVideos() {
         return videoRepository.findAll();
     }
+
+
+     //Increment  SA TRANSAKCIJOM i LOCK-om
+     @Transactional(timeout = 5)
+     public void incrementViewCount(Long videoId) {
+         // 1. Pročitaj video SA LOCK-om (drugi korisnici ČEKAJU ovde)
+         Video video = videoRepository.findByIdForUpdate(videoId)
+                 .orElseThrow(() -> new RuntimeException("Video ne postoji!"));
+
+         // 2. Incrementuj brojač
+         video.setViewCount(video.getViewCount() + 1);
+
+         // 3. Sačuvaj (automatski se čuva zbog @Transactional)
+         videoRepository.save(video);
+
+         // Lock se oslobađa na kraju metode (na kraju transakcije)
+     }
 
 }

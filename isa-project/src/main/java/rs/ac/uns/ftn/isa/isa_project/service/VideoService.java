@@ -9,6 +9,6 @@ public interface VideoService {
     byte[] getThumbnailContent(Long videoId) throws Exception;
     Video getVideoById(Long videoId) throws Exception;
     List<Video> getAllVideos();
-
+    void incrementViewCount(Long videoId);
 }
 

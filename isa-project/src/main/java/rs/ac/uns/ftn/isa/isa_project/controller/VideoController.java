@@ -96,4 +96,15 @@ public class VideoController {
                 .body(resource);
     }
 
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> recordView(@PathVariable Long id) {
+        try {
+            videoService.incrementViewCount(id);
+            return ResponseEntity.ok().build();  // 200 OK
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();  // 404 Not Found
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();  // 500
+        }
+    }
 }

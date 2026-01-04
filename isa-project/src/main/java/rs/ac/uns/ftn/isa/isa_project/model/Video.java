@@ -58,6 +58,10 @@ public class Video {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;  // Početna vrednost 0
+
+
     /**
      * Autor videa (registrovan korisnik).
      * ManyToOne - jedan korisnik može imati više videa.
@@ -174,6 +178,12 @@ public class Video {
         this.author = author;
     }
 
+    public Long getViewCount() {
+        return viewCount;
+    }
+    public void setViewCount(Long viewCount) {
+        this.viewCount = viewCount;
+    }
     // ==================== equals, hashCode, toString ====================
 
     @Override
