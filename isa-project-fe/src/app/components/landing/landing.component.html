@@ -4,62 +4,55 @@
       <h1>Jutjubić</h1>
     </div>
     <div class="navbar-menu">
-  <button class="btn btn-upload" routerLink="/upload">Postavi Video</button>
-  <button class="btn btn-primary" routerLink="/login">Prijavi se</button>
-  <button class="btn btn-secondary" routerLink="/register">Registruj se</button>
-</div>
+      <button class="btn btn-upload" routerLink="/upload">Postavi Video</button>
+
+      <ng-container *ngIf="!currentUser">
+        <button class="btn btn-primary" routerLink="/login">Prijavi se</button>
+        <button class="btn btn-secondary" routerLink="/register">Registruj se</button>
+      </ng-container>
+
+      <ng-container *ngIf="currentUser">
+        <span class="user-greeting">Zdravo, {{ currentUser.firstName }}!</span>
+        <button class="btn btn-logout" (click)="logout()">Odjavi se</button>
+      </ng-container>
+    </div>
   </nav>
 
   <div class="content">
-    <!-- Loading -->
     <div *ngIf="loading" class="loading">
       <p>Učitavanje...</p>
     </div>
 
-    <!-- Error -->
     <div *ngIf="errorMessage && !loading" class="alert alert-error">
       {{ errorMessage }}
     </div>
 
-    <!-- Welcome message -->
     <div class="welcome-message" *ngIf="!loading">
       <h3>🚀 Dobrodošli na Jutjubić platformu!</h3>
       <p>Ovo je YouTube-like platforma za deljenje video sadržaja.</p>
       <p><strong>Princip:</strong> BEZ REKLAMA - IKADA! 🎯</p>
     </div>
 
-    <!-- No videos -->
     <div *ngIf="videos.length === 0 && !loading">
       <p>Trenutno nema videa.</p>
     </div>
 
-    <!-- Video list -->
     <div class="video-list" *ngIf="videos.length > 0">
       <div class="video-card" *ngFor="let video of videos">
-        <h3>{{ video.title }}</h3>
-        <p>{{ video.description }}</p>
-
-        <!-- Thumbnail -->
-        <img 
-          [src]="video.thumbnailUrl" 
-          alt="Thumbnail" 
-          width="200"
-          (error)="onImgError($event)">
-
-        <!-- Play button -->
-        <button (click)="toggleVideo(video)">
-          {{ video.showVideo ? 'Zaustavi' : 'Pusti' }}
-        </button>
-
-        <!-- Video element -->
-        <video 
-          *ngIf="video.showVideo" 
-          width="400" 
-          controls 
-          autoplay>
-          <source [src]="video.videoUrl" type="video/mp4">
-          Vas pretrazivac ne podrzava video tag.
-        </video>
+        <a [routerLink]="['/video', video.id]" class="video-card-link">
+          <div class="video-thumbnail">
+            <img [src]="video.thumbnailUrl" alt="{{ video.title }}" (error)="onImgError($event)">
+            <div class="play-overlay"><div class="play-button">▶</div></div>
+          </div>
+          <div class="video-info">
+            <h3>{{ video.title }}</h3>
+            <p class="video-description">{{ video.description }}</p>
+            <div class="video-meta">
+              <span class="view-count">👁️ {{ video.viewCount || 0 }} pregleda</span>
+              <span class="video-date">📅 {{ video.createdAt | date:'dd.MM.yyyy' }}</span>
+            </div>
+          </div>
+        </a>
       </div>
     </div>
   </div>

@@ -24,11 +24,17 @@ export class VideoService {
     { responseType: 'blob' }
   );
 }
- 
+  getVideoById(id: number): Observable<Video> {
+    return this.http.get<Video>(`${this.apiUrl}/${id}`);
+  }
   uploadVideo(formData: FormData): Observable<HttpEvent<Video>> {
     return this.http.post<Video>(this.apiUrl, formData, {
       reportProgress: true,  
       observe: 'events'      
     });
+  }
+
+  incrementViewCount(videoId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${videoId}/view`, {});
   }
 }

@@ -7,17 +7,24 @@ import { ActivateComponent } from './components/activate/activate.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { AuthGuard } from '../app/guards/auth.guard'; 
 import { VideoUploadComponent } from './components/video-upload/video-upload.component';
+import { VideoDetailComponent } from './components/video-detail/video-detail.component';
 
 
 const routes: Routes = [
   { path: '', component: LandingComponent },  
   { path: 'login', component: LoginComponent },
+  { path: '', component: LandingComponent },  
+  { path: 'home', component: LandingComponent }, // PROMENJENO: I home sad vodi na Landing
   { path: 'register', component: RegisterComponent },
   { path: 'home', component: HomeComponent },  
   { 
     path: 'upload',                              
     component: VideoUploadComponent,
     canActivate: [AuthGuard]                     
+  },
+  { 
+    path: 'video/:id',                  
+    component: VideoDetailComponent 
   },
   { path: 'activate/:token', component: ActivateComponent },
   { path: '**', redirectTo: '' }  

@@ -17,7 +17,7 @@ public class VideoResponseDTO {
     private Double longitude;
     private String videoUrl;
     private String thumbnailUrl;
-
+    private Long viewCount;  //
 
     public VideoResponseDTO() {
         super();
@@ -30,6 +30,7 @@ public class VideoResponseDTO {
         this.createdAt = video.getCreatedAt();
         this.latitude = video.getLatitude();
         this.longitude = video.getLongitude();
+        this.viewCount = video.getViewCount();
         //  ID i username autora
         if (video.getAuthor() != null) {
             this.authorId = video.getAuthor().getId();
@@ -117,4 +118,10 @@ public class VideoResponseDTO {
     public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
     public String getThumbnailUrl() { return thumbnailUrl; }
     public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
+    public Long getViewCount() {
+        return viewCount;
+    }
+    public void setViewCount(Long viewCount) {
+        this.viewCount = viewCount;
+    }
 }

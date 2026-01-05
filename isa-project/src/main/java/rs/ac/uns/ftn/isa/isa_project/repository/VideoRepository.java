@@ -1,16 +1,17 @@
 package rs.ac.uns.ftn.isa.isa_project.repository;
 
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import rs.ac.uns.ftn.isa.isa_project.model.User;
 import rs.ac.uns.ftn.isa.isa_project.model.Video;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.jpa.repository.Lock;
+import java.util.Optional;
 
 /**
  * Repository interfejs za Video entitet.
@@ -68,4 +69,12 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
      * @return Broj videa tog korisnika
      */
     long countByAuthor(User author);
+
+    // NORMALAN findById - za READ bez lock-a
+    Optional<Video> findById(Long id);
+
+    // findById SA LOCK-om - za INCREMENT
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT v FROM Video v WHERE v.id = :id")
+    Optional<Video> findByIdForUpdate(@Param("id") Long id);
 }

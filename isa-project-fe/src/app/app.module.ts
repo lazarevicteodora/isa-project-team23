@@ -16,7 +16,8 @@ import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { ActivateComponent } from './components/activate/activate.component';
 import { LandingComponent } from './components/landing/landing.component';
-import { VideoUploadComponent } from './components/video-upload/video-upload.component'; 
+import { VideoUploadComponent } from './components/video-upload/video-upload.component';
+import { VideoDetailComponent } from './components/video-detail/video-detail.component'; 
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { VideoUploadComponent } from './components/video-upload/video-upload.com
     ActivateComponent,
     LandingComponent,
     VideoUploadComponent,
+    VideoDetailComponent
   ],
   imports: [
     BrowserModule,
