@@ -5,44 +5,40 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public class VideoResponseDTO {
-
     private Long id;
     private String title;
     private String description;
     private Set<String> tags;
+    private String thumbnailUrl;
+    private String videoUrl;
     private LocalDateTime createdAt;
-    private Long authorId;
     private String authorUsername;
+    private Long authorId;
+    private Long viewCount;
     private Double latitude;
     private Double longitude;
-    private String videoUrl;
-    private String thumbnailUrl;
-    private Long viewCount;  //
 
-    public VideoResponseDTO() {
-        super();
-    }
+    private Long likeCount = 0L;
+    private Long commentCount = 0L;
+
+    public VideoResponseDTO() {}
+
     public VideoResponseDTO(Video video) {
         this.id = video.getId();
         this.title = video.getTitle();
         this.description = video.getDescription();
         this.tags = video.getTags();
+        this.thumbnailUrl = "/api/videos/" + video.getId() + "/thumbnail";
+        this.videoUrl = "/api/videos/" + video.getId() + "/stream";
         this.createdAt = video.getCreatedAt();
+        this.authorUsername = video.getAuthor().getUsername();
+        this.authorId = video.getAuthor().getId();
+        this.viewCount = video.getViewCount();
         this.latitude = video.getLatitude();
         this.longitude = video.getLongitude();
-        this.viewCount = video.getViewCount();
-        //  ID i username autora
-        if (video.getAuthor() != null) {
-            this.authorId = video.getAuthor().getId();
-            this.authorUsername = video.getAuthor().getUsername();
-        }
-        this.videoUrl = "http://localhost:8080/api/videos/" + video.getId() + "/stream";
-        this.thumbnailUrl = "http://localhost:8080/api/videos/" + video.getId() + "/thumbnail";
-
-
     }
 
-
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -75,12 +71,36 @@ public class VideoResponseDTO {
         this.tags = tags;
     }
 
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAuthorUsername() {
+        return authorUsername;
+    }
+
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
     }
 
     public Long getAuthorId() {
@@ -91,12 +111,12 @@ public class VideoResponseDTO {
         this.authorId = authorId;
     }
 
-    public String getAuthorUsername() {
-        return authorUsername;
+    public Long getViewCount() {
+        return viewCount;
     }
 
-    public void setAuthorUsername(String authorUsername) {
-        this.authorUsername = authorUsername;
+    public void setViewCount(Long viewCount) {
+        this.viewCount = viewCount;
     }
 
     public Double getLatitude() {
@@ -114,14 +134,20 @@ public class VideoResponseDTO {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
-    public String getVideoUrl() { return videoUrl; }
-    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
-    public String getThumbnailUrl() { return thumbnailUrl; }
-    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
-    public Long getViewCount() {
-        return viewCount;
+
+    public Long getLikeCount() {
+        return likeCount;
     }
-    public void setViewCount(Long viewCount) {
-        this.viewCount = viewCount;
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public Long getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Long commentCount) {
+        this.commentCount = commentCount;
     }
 }

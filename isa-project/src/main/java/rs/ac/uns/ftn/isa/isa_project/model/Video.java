@@ -3,6 +3,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "videos")
@@ -18,10 +21,6 @@ public class Video {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    /**
-     * Tagovi koji opisuju sadržaj videa.
-     * Čuvaju se u posebnoj tabeli video_tags.
-     */
     @ElementCollection
     @CollectionTable(
             name = "video_tags",
@@ -30,57 +29,40 @@ public class Video {
     @Column(name = "tag")
     private Set<String> tags = new HashSet<>();
 
-    /**
-     * Relativna putanja do thumbnail slike na serveru.
-     */
     @Column(name = "thumbnail_path", nullable = false)
     private String thumbnailPath;
 
-    /**
-     * Relativna putanja do video fajla na serveru.
-     */
     @Column(name = "video_path", nullable = false)
     private String videoPath;
 
-    /**
-     * Sistemsko vreme kreiranja objave.
-     */
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Geografska lokacija - latitude (opciono).
-     */
     @Column(name = "latitude")
     private Double latitude;
-
 
     @Column(name = "longitude")
     private Double longitude;
 
     @Column(name = "view_count", nullable = false)
-    private Long viewCount = 0L;  // Početna vrednost 0
+    private Long viewCount = 0L;
 
-
-    /**
-     * Autor videa (registrovan korisnik).
-     * ManyToOne - jedan korisnik može imati više videa.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    // ==================== Lifecycle Callbacks ====================
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Comment> comments = new ArrayList<>();
 
-    /**
-     * Automatski postavlja vreme kreiranja pre nego što se entitet sačuva.
-     */
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<VideoLike> likes = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
-    // ==================== Constructors ====================
 
     public Video() {
         super();
@@ -96,8 +78,7 @@ public class Video {
         this.author = author;
     }
 
-    // ==================== Getters and Setters ====================
-
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -181,10 +162,27 @@ public class Video {
     public Long getViewCount() {
         return viewCount;
     }
+
     public void setViewCount(Long viewCount) {
         this.viewCount = viewCount;
     }
-    // ==================== equals, hashCode, toString ====================
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<VideoLike> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<VideoLike> likes) {
+        this.likes = likes;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -23,28 +23,37 @@ export class LoginComponent {
   ) {}
 
   onSubmit(): void {
-    this.errorMessage = '';
+  this.errorMessage = '';
 
-    // Validacija
-    if (!this.loginData.email || !this.loginData.password) {
-      this.errorMessage = 'Email i lozinka su obavezni!';
-      return;
-    }
-
-    this.loading = true;
-
-    this.authService.login(this.loginData).subscribe({
-      next: (response) => {
-        this.loading = false;
-        console.log('Login successful!', response);
-        // Preusmeri na home stranicu nakon uspešnog login-a
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        this.loading = false;
-        this.errorMessage = error.error || 'Pogrešan email ili lozinka!';
-        console.error('Login error:', error);
-      }
-    });
+  if (!this.loginData.email || !this.loginData.password) {
+    this.errorMessage = 'Email i lozinka su obavezni!';
+    return;
   }
+
+  this.loading = true;
+
+  this.authService.login(this.loginData).subscribe({
+    next: (response) => {
+      this.loading = false;
+      console.log('✅ Login successful!', response);
+      
+      // PROVERI DA LI JE TOKEN SAČUVAN
+      const token = localStorage.getItem('token');
+      console.log('🔑 Token after login:', token ? 'EXISTS' : 'NULL');
+      
+      if (!token) {
+        console.error('❌ Token NOT saved!');
+        this.errorMessage = 'Login failed - token not saved';
+        return;
+      }
+      
+      this.router.navigate(['/home']);
+    },
+    error: (error) => {
+      this.loading = false;
+      this.errorMessage = error.error || 'Pogrešan email ili lozinka!';
+      console.error('❌ Login error:', error);
+    }
+  });
+}
 }

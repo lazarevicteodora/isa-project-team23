@@ -1,0 +1,100 @@
+<div class="profile-container">
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Jutjubić</h1>
+    </div>
+    <div class="navbar-menu">
+      <button class="btn btn-back" (click)="goBack()">
+        ← Početna
+      </button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Učitavanje profila...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !loading" class="error-container">
+      <div class="alert alert-error">
+        <h2>😞 Greška</h2>
+        <p>{{ errorMessage }}</p>
+        <button class="btn btn-primary" (click)="goBack()">
+          Vrati se na početnu
+        </button>
+      </div>
+    </div>
+
+    <!-- User Profile -->
+    <div *ngIf="user && !loading" class="profile-content">
+      
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <div class="avatar-circle">
+            {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+          </div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h1>
+          <p class="profile-username">@{{ user.username }}</p>
+          <p class="profile-email">📧 {{ user.email }}</p>
+        </div>
+      </div>
+
+      <!-- Profile Stats -->
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-number">{{ videos.length }}</span>
+          <span class="stat-label">Videa</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ getTotalViews() }}</span>
+          <span class="stat-label">Pregleda</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ getTotalLikes() }}</span>
+          <span class="stat-label">Lajkova</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ getTotalComments() }}</span>
+          <span class="stat-label">Komentara</span>
+        </div>
+      </div>
+
+      <!-- User Videos -->
+      <div class="user-videos-section">
+        <h2>Videi korisnika</h2>
+        
+        <div *ngIf="videos.length === 0" class="no-videos">
+          <p>📹 Korisnik još uvek nije postavio nijedan video.</p>
+        </div>
+
+        <div class="video-grid" *ngIf="videos.length > 0">
+          <div class="video-card" *ngFor="let video of videos" (click)="openVideo(video.id)">
+            <div class="video-thumbnail">
+              <img [src]="video.thumbnailUrl" alt="{{ video.title }}" (error)="onImgError($event)">
+              <div class="play-overlay">
+                <div class="play-button">▶</div>
+              </div>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title">{{ video.title }}</h3>
+              <p class="video-description">{{ video.description }}</p>
+              <div class="video-meta">
+                <span class="view-count">👁️ {{ video.viewCount || 0 }}</span>
+                <span class="like-count">❤️ {{ video.likeCount || 0 }}</span>
+                <span class="comment-count">💬 {{ video.commentCount || 0 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

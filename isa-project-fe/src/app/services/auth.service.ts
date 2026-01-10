@@ -11,7 +11,7 @@ import { LoginRequest, RegisterRequest, UserTokenState } from '../models/user.mo
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
-  private tokenKey = 'jwt_token';
+  private tokenKey = 'token';
   
   // BehaviorSubject za praćenje stanja autentifikacije
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());

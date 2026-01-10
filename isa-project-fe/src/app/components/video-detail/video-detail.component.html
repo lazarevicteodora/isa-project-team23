@@ -21,7 +21,7 @@
     <!-- Error State -->
     <div *ngIf="errorMessage && !loading" class="error-container">
       <div class="alert alert-error">
-        <h2>😞 Greška</h2>
+        <h2>Greška</h2>
         <p>{{ errorMessage }}</p>
         <button class="btn btn-primary" (click)="goBack()">
           Vrati se na početnu
@@ -38,7 +38,7 @@
           class="video-player"
           controls
           autoplay>
-          <source [src]="video.videoUrl" type="video/mp4">
+          <source [src]="'http://localhost:8080/api/videos/' + video.id + '/stream'" type="video/mp4">
           Vaš pretraživač ne podržava video tag.
         </video>
       </div>
@@ -54,11 +54,16 @@
           <span class="meta-item view-count">
             👁️ {{ video.viewCount || 0 }} pregleda
           </span>
-          <span class="meta-item date">
-            📅 {{ video.createdAt | date:'dd.MM.yyyy' }}
-          </span>
+
           <span class="meta-item author" *ngIf="video.authorUsername">
-            👤 {{ video.authorUsername }}
+            👤 
+            <a [routerLink]="['/profile', video.authorId]" class="author-link">
+              {{ video.authorUsername }}
+            </a>
+          </span>
+          
+          <span class="meta-item date">
+            📅 {{ video.createdAt | parseDate | date:'dd.MM.yyyy HH:mm' }}
           </span>
         </div>
 
@@ -68,23 +73,120 @@
           <p>{{ video.description }}</p>
         </div>
 
-        <!-- Tags (ako postoje) -->
+        <!-- Tags -->
         <div class="video-tags" *ngIf="video.tags && video.tags.length > 0">
           <h3>Tagovi</h3>
           <div class="tags-list">
             <span class="tag" *ngFor="let tag of video.tags">
-              #{{ tag }}
+              {{ tag }}
             </span>
           </div>
         </div>
 
-        <!-- Location (ako postoji) -->
+        <!-- Location -->
         <div class="video-location" *ngIf="video.latitude && video.longitude">
           <h3>Lokacija</h3>
           <p>📍 {{ video.latitude }}, {{ video.longitude }}</p>
         </div>
 
+        <!-- Like Section -->
+        <div class="like-section">
+          <button 
+            (click)="toggleLike()"
+            [class.liked]="hasLiked"
+            class="btn-like">
+            <span class="like-icon">{{ hasLiked ? '❤️' : '🤍' }}</span>
+            {{ likeCount }}
+          </button>
+        </div>
+
       </div>
+
+      <!-- Comments Section -->
+      <div class="comments-section">
+        <h3>Komentari ({{ totalComments }})</h3>
+        
+        <!-- Add Comment Form (only for logged in users) -->
+        <div *ngIf="isAuthenticated" class="comment-form">
+          <textarea 
+            [(ngModel)]="newComment" 
+            placeholder="Dodaj komentar..."
+            rows="3"
+            [disabled]="submittingComment"
+            maxlength="2000">
+          </textarea>
+          <button 
+            (click)="addComment()" 
+            [disabled]="!newComment.trim() || submittingComment"
+            class="btn-submit">
+            {{ submittingComment ? 'Objavljuje se...' : 'Objavi' }}
+          </button>
+        </div>
+        
+        <!-- Login Prompt for non-authenticated users -->
+        <div *ngIf="!isAuthenticated" class="login-prompt">
+          <p>
+            🔒 Morate se <a routerLink="/login" [queryParams]="{returnUrl: '/video/' + video.id}">prijaviti</a> 
+            da biste komentarisali.
+          </p>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div *ngIf="loadingComments" class="loading-comments">
+          <div class="spinner-small"></div>
+          <p>Učitavanje komentara...</p>
+        </div>
+        
+        <!-- Comments List -->
+        <div class="comments-list" *ngIf="!loadingComments">
+          <div *ngFor="let comment of comments" class="comment">
+            <div class="comment-header">
+              <span class="comment-author">
+                👤 
+                <a [routerLink]="['/profile', comment.authorId]" class="author-link">
+                  {{ comment.authorUsername }}
+                </a>
+              </span>
+              <span class="comment-date">
+                📅 {{ comment.createdAt | parseDate | date:'dd.MM.yyyy HH:mm' }}
+              </span>
+              <button 
+                *ngIf="canDeleteComment(comment)" 
+                (click)="deleteComment(comment.id)"
+                class="btn-delete">
+                🗑️ Obriši
+              </button>
+            </div>
+            <div class="comment-content">{{ comment.content }}</div>
+          </div>
+          
+          <p *ngIf="comments.length === 0" class="no-comments">
+            💬 Nema komentara. Budite prvi!
+          </p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button 
+            (click)="previousPage()" 
+            [disabled]="currentPage === 0"
+            class="btn-page">
+            ← Prethodna
+          </button>
+          
+          <span class="page-info">
+            Stranica {{ currentPage + 1 }} od {{ totalPages }}
+          </span>
+          
+          <button 
+            (click)="nextPage()" 
+            [disabled]="currentPage === totalPages - 1"
+            class="btn-page">
+            Sledeća →
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

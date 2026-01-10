@@ -53,9 +53,6 @@ public class WebSecurityConfig {
     /**
      * Authentication provider koji koristi UserDetailsService i PasswordEncoder
      */
-    /**
-     * Authentication provider koji koristi UserDetailsService i PasswordEncoder
-     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         // Nova verzija zahteva UserDetailsService odmah u konstruktoru
@@ -104,12 +101,32 @@ public class WebSecurityConfig {
         );
 
         // Definišemo koja ruta zahteva autentifikaciju
+        // VAŽNO: Redosled je KRITIČAN - od najspecifičnijih ka najopštijim!
         http.authorizeHttpRequests(auth -> auth
+                // Auth endpoint-i - javno dostupni
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/videos/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/videos/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()
 
+                // Video GET endpoint-i - javno dostupni (ZADATAK 3.1)
+                .requestMatchers(HttpMethod.GET, "/api/videos").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*/thumbnail").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*/stream").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*/comments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*/comments/count").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/count").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/status").permitAll()
+
+                // Video POST endpoint-i - specifični PRVO
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()  // View count je javno
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/comments").authenticated()  // Komentari - AUTH
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/likes").authenticated()  // Lajkovi - AUTH
+                .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()  // Upload videa - AUTH (POSLEDNJI!)
+
+                // Comment DELETE - zahteva autentifikaciju
+                .requestMatchers(HttpMethod.DELETE, "/api/videos/*/comments/*").authenticated()
+
+                // Sve ostalo zahteva autentifikaciju
                 .anyRequest().authenticated()
         );
 
