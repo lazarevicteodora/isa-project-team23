@@ -226,7 +226,7 @@ export class VideoDetailComponent implements OnInit {
   }
 
   showLoginMessage(action: string): void {
-    const message = `Morate se prijaviti da biste mogli da ${action} video. Želite li da se prijavite?`;
+    const message = `Morate se prijaviti da biste mogli ${action} video. Želite li da se prijavite?`;
     if (confirm(message)) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
     }

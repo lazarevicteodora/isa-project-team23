@@ -5,46 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9816d7d8-affd-4d00-a3ae-8ed47174ff70" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/app-routing.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/app-routing.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/landing/landing.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/landing/landing.component.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/landing/landing.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/landing/landing.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/landing/landing.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/landing/landing.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/login/login.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/login/login.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/video-detail/video-detail.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/video-detail/video-detail.component.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/video-detail/video-detail.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/video-detail/video-detail.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/components/video-detail/video-detail.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/components/video-detail/video-detail.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/models/video.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/models/video.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/services/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/services/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/services/user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/services/user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../isa-project-fe/src/app/services/video.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../isa-project-fe/src/app/services/video.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/config/WebSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/controller/VideoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/controller/VideoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/dto/VideoResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/dto/VideoResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/model/Video.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/model/Video.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/service/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/service/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/service/VideoServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/rs/ac/uns/ftn/isa/isa_project/service/VideoServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-test.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/application-test.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/ehcache.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/ehcache.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application-test.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/ehcache.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/ehcache.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/config/WebSecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/config/WebSecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/controller/UserController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/controller/VideoController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/controller/VideoController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/dto/VideoResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/dto/VideoResponseDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/model/Video.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/model/Video.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/service/UserService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/service/UserServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/service/UserServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/service/VideoServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/rs/ac/uns/ftn/isa/isa_project/service/VideoServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
