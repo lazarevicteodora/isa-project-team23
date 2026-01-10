@@ -1,9 +1,11 @@
 package rs.ac.uns.ftn.isa.isa_project;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import rs.ac.uns.ftn.isa.isa_project.dto.VideoUploadDTO;
 import rs.ac.uns.ftn.isa.isa_project.repository.VideoRepository;
 import rs.ac.uns.ftn.isa.isa_project.service.VideoService;
@@ -15,6 +17,8 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@Transactional
 public class VideoUploadIntegrationTest {
 
     @Autowired
