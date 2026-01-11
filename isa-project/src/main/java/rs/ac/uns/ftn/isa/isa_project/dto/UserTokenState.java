@@ -1,9 +1,5 @@
 package rs.ac.uns.ftn.isa.isa_project.dto;
 
-/**
- * DTO koji enkapsulira generisani JWT token i njegovo trajanje.
- * Vraća se klijentu nakon uspešne autentifikacije.
- */
 public class UserTokenState {
 
     private String accessToken;
@@ -19,7 +15,6 @@ public class UserTokenState {
         this.expiresIn = expiresIn;
     }
 
-    // ==================== Getters and Setters ====================
 
     public String getAccessToken() {
         return accessToken;

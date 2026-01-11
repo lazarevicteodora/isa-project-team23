@@ -4,10 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * DTO za registraciju korisnika.
- * Prima podatke iz forme za registraciju.
- */
 public class RegisterRequest {
 
     @NotBlank(message = "Email je obavezan")
@@ -48,7 +44,6 @@ public class RegisterRequest {
         this.address = address;
     }
 
-    // ==================== Getters and Setters ====================
 
     public String getEmail() {
         return email;

@@ -16,9 +16,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import rs.ac.uns.ftn.isa.isa_project.model.User;
 
-/**
- * Utility klasa za rad sa JSON Web Tokenima (JWT).
- */
 @Component
 public class TokenUtils {
 
@@ -43,21 +40,11 @@ public class TokenUtils {
     // Algoritam za potpisivanje JWT
     private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
-    /**
-     * Kreira SecretKey objekat iz SECRET string-a
-     */
     private SecretKey getSigningKey() {
         byte[] keyBytes = SECRET.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // ==================== Generisanje JWT tokena ====================
-
-    /**
-     * Generiše JWT token za korisnika
-     * @param email Email korisnika
-     * @return JWT token
-     */
     public String generateToken(String email) {
         return Jwts.builder()
                 .setIssuer(APP_NAME)
@@ -69,25 +56,13 @@ public class TokenUtils {
                 .compact();
     }
 
-    /**
-     * Generiše datum do kog je JWT token validan
-     */
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + EXPIRES_IN);
     }
 
-    // ==================== Čitanje informacija iz JWT tokena ====================
-
-    /**
-     * Preuzima JWT token iz HTTP zahteva
-     * @param request HTTP zahtev
-     * @return JWT token ili null
-     */
     public String getToken(HttpServletRequest request) {
         String authHeader = getAuthHeaderFromHeader(request);
 
-        // JWT se prosleđuje kroz header 'Authorization' u formatu:
-        // Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7); // preuzimamo samo token (bez "Bearer " prefiksa)
         }
@@ -95,11 +70,6 @@ public class TokenUtils {
         return null;
     }
 
-    /**
-     * Preuzima email korisnika iz tokena
-     * @param token JWT token
-     * @return Email korisnika
-     */
     public String getEmailFromToken(String token) {
         String email;
         try {
@@ -113,9 +83,6 @@ public class TokenUtils {
         return email;
     }
 
-    /**
-     * Preuzima datum kreiranja tokena
-     */
     public Date getIssuedAtDateFromToken(String token) {
         Date issuedAt;
         try {
@@ -129,9 +96,6 @@ public class TokenUtils {
         return issuedAt;
     }
 
-    /**
-     * Preuzima datum do kada token važi
-     */
     public Date getExpirationDateFromToken(String token) {
         Date expiration;
         try {
@@ -145,9 +109,6 @@ public class TokenUtils {
         return expiration;
     }
 
-    /**
-     * Čita sve podatke iz JWT tokena
-     */
     private Claims getAllClaimsFromToken(String token) {
         Claims claims;
         try {
@@ -164,44 +125,24 @@ public class TokenUtils {
         return claims;
     }
 
-    // ==================== Validacija JWT tokena ====================
-
-    /**
-     * Validira JWT token
-     * @param token JWT token
-     * @param userDetails Informacije o korisniku
-     * @return true ako je token validan
-     */
     public Boolean validateToken(String token, UserDetails userDetails) {
         User user = (User) userDetails;
         final String email = getEmailFromToken(token);
         final Date created = getIssuedAtDateFromToken(token);
 
-        // Token je validan kada:
         return (email != null
                 && email.equals(user.getEmail()) // email iz tokena odgovara emailu iz baze
                 && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())); // korisnik nije menjao lozinku nakon kreiranja tokena
     }
 
-    /**
-     * Proverava da li je lozinka korisnika izmenjena nakon izdavanja tokena
-     */
     private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
     }
 
-    // ==================== Pomocne metode ====================
-
-    /**
-     * Vraća period važenja tokena u milisekundama
-     */
     public int getExpiredIn() {
         return EXPIRES_IN;
     }
 
-    /**
-     * Preuzima sadržaj Authorization header-a iz zahteva
-     */
     public String getAuthHeaderFromHeader(HttpServletRequest request) {
         return request.getHeader(AUTH_HEADER);
     }

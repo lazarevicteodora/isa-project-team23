@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.isa.isa_project.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,15 +12,8 @@ import rs.ac.uns.ftn.isa.isa_project.dto.RegisterRequest;
 import rs.ac.uns.ftn.isa.isa_project.dto.UserTokenState;
 import rs.ac.uns.ftn.isa.isa_project.model.User;
 import rs.ac.uns.ftn.isa.isa_project.service.AuthService;
+import rs.ac.uns.ftn.isa.isa_project.service.RateLimitService;
 
-/**
- * REST kontroler za autentifikaciju i registraciju.
- *
- * Endpointi:
- * - POST /api/auth/register - Registracija novog korisnika
- * - POST /api/auth/login    - Prijava na sistem (vraća JWT token)
- * - GET  /api/auth/activate/{token} - Aktivacija naloga preko email linka
- */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -28,15 +22,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    /**
-     * POST /api/auth/register
-     *
-     * Registruje novog korisnika.
-     * Nakon registracije, korisniku se šalje aktivacioni link na email.
-     *
-     * @param registerRequest podaci za registraciju (email, username, password, itd.)
-     * @return kreiran korisnik (201 CREATED)
-     */
+    @Autowired
+    private RateLimitService rateLimitService;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
@@ -49,34 +37,35 @@ public class AuthController {
         }
     }
 
-    /**
-     * POST /api/auth/login
-     *
-     * Autentifikuje korisnika i vraća JWT token.
-     * Korisnik se loguje sa email adresom i lozinkom.
-     *
-     * @param loginRequest email i lozinka
-     * @return JWT token i vreme važenja (200 OK)
-     */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request) {
+
+        String ipAddress = getClientIpAddress(request);
+
+        if (!rateLimitService.allowRequest(ipAddress)) {
+            int remainingAttempts = rateLimitService.getRemainingAttempts(ipAddress);
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(
+                    "Previše pokušaja prijave! Pokušajte ponovo za 1 minut. " +
+                            "Preostalo pokušaja: " + remainingAttempts
+            );
+        }
+
         try {
             UserTokenState token = authService.login(loginRequest);
+
+            rateLimitService.resetAttempts(ipAddress);
+
             return ResponseEntity.ok(token);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            int remainingAttempts = rateLimitService.getRemainingAttempts(ipAddress);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    e.getMessage() + " Preostalo pokušaja: " + remainingAttempts
+            );
         }
     }
 
-    /**
-     * GET /api/auth/activate/{token}
-     *
-     * Aktivira korisnikov nalog preko tokena iz email-a.
-     * Ovaj endpoint se poziva kada korisnik klikne na link u email-u.
-     *
-     * @param token aktivacioni token (UUID)
-     * @return poruka o uspešnosti aktivacije
-     */
     @GetMapping("/activate/{token}")
     public ResponseEntity<?> activateAccount(@PathVariable String token) {
         boolean activated = authService.activateAccount(token);
@@ -88,5 +77,13 @@ public class AuthController {
                     "Nevažeći ili istekao aktivacioni link!"
             );
         }
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }
