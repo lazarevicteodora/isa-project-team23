@@ -105,6 +105,7 @@ public class VideoServiceImpl implements VideoService {
                 .orElseThrow(() -> new Exception("Video nije pronađen"));
 
         Path path = Paths.get(v.getThumbnailPath());
+        System.out.println("ČITAM THUMBNAIL SA DISKA");
         return Files.readAllBytes(path);
     }
 

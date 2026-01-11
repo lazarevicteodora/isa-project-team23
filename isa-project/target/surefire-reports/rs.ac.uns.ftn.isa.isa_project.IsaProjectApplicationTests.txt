@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: rs.ac.uns.ftn.isa.isa_project.IsaProjectApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in rs.ac.uns.ftn.isa.isa_project.IsaProjectApplicationTests

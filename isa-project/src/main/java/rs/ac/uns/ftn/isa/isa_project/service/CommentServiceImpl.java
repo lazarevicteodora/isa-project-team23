@@ -30,13 +30,15 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private VideoRepository videoRepository;
 
-    // Per-user locks za thread-safe rate limiting
     private final ConcurrentHashMap<Long, ReentrantLock> userLocks = new ConcurrentHashMap<>();
 
     @Override
     public Page<CommentDTO> getCommentsByVideoId(Long videoId, Pageable pageable) {
+        System.out.println("[CACHE] GET comments for video " + videoId + " - QUERYING DATABASE");
+
         LOG.info("Fetching comments for video {} (page {}, size {})",
                 videoId, pageable.getPageNumber(), pageable.getPageSize());
+
         Page<Comment> comments = commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId, pageable);
         return comments.map(CommentDTO::new);
     }
@@ -45,16 +47,17 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     @CacheEvict(value = "video_comments", allEntries = true)
     public Comment addComment(Long videoId, String content, User user) {
-        // Dobij lock za ovog korisnika (thread-safe)
         ReentrantLock lock = userLocks.computeIfAbsent(user.getId(), id -> new ReentrantLock());
 
-        lock.lock(); // Zaključaj - drugi thread-ovi čekaju ovde
+        lock.lock();
         try {
-            // KRITIČNA SEKCIJA - samo jedan thread odjednom za istog korisnika
             LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
             long commentCount = commentRepository.countByUserIdSince(user.getId(), oneHourAgo);
 
+            System.out.println("[RATE LIMIT] User " + user.getUsername() + ": " + commentCount + "/60 comments");
+
             if (commentCount >= 60) {
+                System.out.println("[RATE LIMIT] BLOCKED - limit exceeded");
                 LOG.warn("User {} exceeded comment rate limit (60/hour)", user.getUsername());
                 throw new RuntimeException("You have exceeded the maximum number of comments per hour (60). Please try again later.");
             }
@@ -65,11 +68,12 @@ public class CommentServiceImpl implements CommentService {
             Comment comment = new Comment(content, video, user);
             comment = commentRepository.save(comment);
 
+            System.out.println("[CACHE] EVICTED - cache cleared after adding comment");
             LOG.info("User {} added comment to video {}", user.getUsername(), videoId);
             return comment;
 
         } finally {
-            lock.unlock(); // UVEK otključaj, čak i ako dođe do exception-a
+            lock.unlock();
         }
     }
 

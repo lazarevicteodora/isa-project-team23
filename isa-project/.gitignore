@@ -9,3 +9,9 @@
 # Editor-based HTTP Client requests
 /httpRequests/
 .idea/
+# Maven / build output
+target/
+*.class
+# App runtime files
+cache/
+storage/
