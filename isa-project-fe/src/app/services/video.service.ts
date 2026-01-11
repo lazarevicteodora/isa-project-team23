@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Video } from '../models/video.model';
+import { Comment, CommentPage } from '../models/comment.model';
 import { HttpEvent } from '@angular/common/http'; 
 
 @Injectable({
@@ -36,5 +37,43 @@ export class VideoService {
 
   incrementViewCount(videoId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${videoId}/view`, {});
+  }
+
+  getComments(videoId: number, page: number = 0, size: number = 10): Observable<CommentPage> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    return this.http.get<CommentPage>(`${this.apiUrl}/${videoId}/comments`, { params });
+  }
+
+  addComment(videoId: number, content: string): Observable<Comment> {
+    return this.http.post<Comment>(
+      `${this.apiUrl}/${videoId}/comments`,
+      { content }
+    );
+  }
+
+  deleteComment(videoId: number, commentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${videoId}/comments/${commentId}`);
+  }
+
+  getCommentCount(videoId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/${videoId}/comments/count`);
+  }
+
+  toggleLike(videoId: number): Observable<{ liked: boolean, likeCount: number }> {
+    return this.http.post<{ liked: boolean, likeCount: number }>(
+      `${this.apiUrl}/${videoId}/likes`,
+      {}
+    );
+  }
+
+  getLikeCount(videoId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/${videoId}/likes/count`);
+  }
+
+  getLikeStatus(videoId: number): Observable<{ liked: boolean }> {
+    return this.http.get<{ liked: boolean }>(`${this.apiUrl}/${videoId}/likes/status`);
   }
 }

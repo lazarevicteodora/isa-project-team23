@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9816d7d8-affd-4d00-a3ae-8ed47174ff70" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="37wjiJ5mJoDcimHx1zGwmut3B4S" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.CommentConcurrencyTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CommentRateLimitTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.IsaProjectApplicationTests.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.VideoConcurrencyTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.VideoUploadIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.IsaProjectApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/unauth-access-and-comments&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\LEGION\Desktop\isaProjekat\isa-project-team23\isa-project\src\test\resources" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="IsaProjectApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="isa-project" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="rs.ac.uns.ftn.isa.isa_project.IsaProjectApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9816d7d8-affd-4d00-a3ae-8ed47174ff70" name="Changes" comment="" />
+      <created>1767821161462</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1767821161462</updated>
+      <workItem from="1767821164157" duration="475000" />
+      <workItem from="1767821836916" duration="90000" />
+      <workItem from="1767822009910" duration="3593000" />
+      <workItem from="1767826334161" duration="901000" />
+      <workItem from="1767827265331" duration="660000" />
+      <workItem from="1767896117991" duration="303000" />
+      <workItem from="1767917098615" duration="350000" />
+      <workItem from="1767917635881" duration="1919000" />
+      <workItem from="1767974741777" duration="864000" />
+      <workItem from="1767993266058" duration="603000" />
+      <workItem from="1767993988856" duration="196000" />
+      <workItem from="1768042182967" duration="3513000" />
+      <workItem from="1768061252108" duration="1099000" />
+      <workItem from="1768062668128" duration="77000" />
+      <workItem from="1768062854259" duration="101000" />
+      <workItem from="1768063000741" duration="48000" />
+      <workItem from="1768063406679" duration="57000" />
+      <workItem from="1768063479046" duration="391000" />
+      <workItem from="1768063975372" duration="94000" />
+      <workItem from="1768064259617" duration="33000" />
+      <workItem from="1768064367751" duration="422000" />
+      <workItem from="1768064891600" duration="364000" />
+      <workItem from="1768065768892" duration="5678000" />
+      <workItem from="1768071954277" duration="1493000" />
+      <workItem from="1768074800774" duration="1742000" />
+      <workItem from="1768076576581" duration="232000" />
+      <workItem from="1768076827474" duration="467000" />
+      <workItem from="1768077310272" duration="944000" />
+      <workItem from="1768078292950" duration="935000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.nio.file.NoSuchFileException" package="java.nio.file" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

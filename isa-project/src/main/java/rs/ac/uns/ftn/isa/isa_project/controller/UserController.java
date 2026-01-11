@@ -6,6 +6,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import rs.ac.uns.ftn.isa.isa_project.model.User;
 import rs.ac.uns.ftn.isa.isa_project.service.UserService;
@@ -20,7 +22,7 @@ import java.util.List;
  * - GET /api/users/all    - Vraća sve korisnike (samo za ADMIN)
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
@@ -62,5 +64,24 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.findAll();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            User user = userService.getUserById(id);
+
+            // Kreiraj DTO da ne vraćaš lozinku i ostale osetljive podatke
+            Map<String, Object> userDTO = new HashMap<>();
+            userDTO.put("id", user.getId());
+            userDTO.put("username", user.getUsername());
+            userDTO.put("email", user.getEmail());
+            userDTO.put("firstName", user.getFirstName());
+            userDTO.put("lastName", user.getLastName());
+
+            return ResponseEntity.ok(userDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

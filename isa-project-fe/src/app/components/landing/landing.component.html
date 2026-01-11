@@ -38,18 +38,30 @@
     </div>
 
     <div class="video-list" *ngIf="videos.length > 0">
-      <div class="video-card" *ngFor="let video of videos">
+      <div class="video-card" *ngFor="let video of videos; trackBy: trackByVideoId">
         <a [routerLink]="['/video', video.id]" class="video-card-link">
           <div class="video-thumbnail">
-            <img [src]="video.thumbnailUrl" alt="{{ video.title }}" (error)="onImgError($event)">
-            <div class="play-overlay"><div class="play-button">▶</div></div>
+            <!-- ✅ DODAJ loading="lazy" za optimizaciju -->
+            <img 
+              [src]="video.thumbnailUrl" 
+              [alt]="video.title" 
+              (error)="onImgError($event)"
+              loading="lazy">
+            <div class="play-overlay">
+              <div class="play-button">▶</div>
+            </div>
           </div>
           <div class="video-info">
             <h3>{{ video.title }}</h3>
             <p class="video-description">{{ video.description }}</p>
+            <div class="video-author">
+              <a [routerLink]="['/profile', video.authorId]" class="author-link" (click)="$event.stopPropagation()">
+                👤 {{ video.authorUsername }}
+              </a>
+            </div>
             <div class="video-meta">
               <span class="view-count">👁️ {{ video.viewCount || 0 }} pregleda</span>
-              <span class="video-date">📅 {{ video.createdAt | date:'dd.MM.yyyy' }}</span>
+              <span class="video-date">📅 {{ video.createdAt | parseDate | date:'dd.MM.yyyy HH:mm' }}</span>
             </div>
           </div>
         </a>

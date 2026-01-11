@@ -18,6 +18,8 @@ import { ActivateComponent } from './components/activate/activate.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { VideoUploadComponent } from './components/video-upload/video-upload.component';
 import { VideoDetailComponent } from './components/video-detail/video-detail.component'; 
+import { ProfileComponent } from './components/profile/profile.component';
+import { ParseDatePipe } from './pipes/date-parser.pipe'; 
 
 @NgModule({
   declarations: [
@@ -28,7 +30,9 @@ import { VideoDetailComponent } from './components/video-detail/video-detail.com
     ActivateComponent,
     LandingComponent,
     VideoUploadComponent,
-    VideoDetailComponent
+    VideoDetailComponent,
+    ProfileComponent,
+    ParseDatePipe
   ],
   imports: [
     BrowserModule,

@@ -16,7 +16,7 @@ export class UserService {
    * Dobavi trenutno ulogovanog korisnika
    */
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/users/whoami`);
+    return this.http.get<User>(`${this.apiUrl}/user/whoami`);
   }
 
   /**
@@ -24,5 +24,9 @@ export class UserService {
    */
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users/all`);
+  }
+
+  getUserById(userId: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/user/${userId}`);
   }
 }

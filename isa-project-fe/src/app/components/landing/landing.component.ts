@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { User } from '../../models/user.model';
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
+
 @Component({
   selector: 'app-landing',
   templateUrl: './landing.component.html',
@@ -27,6 +28,7 @@ export class LandingComponent implements OnInit {
     this.loadCurrentUser();
     this.loadVideos();
   }
+
   loadCurrentUser(): void {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
@@ -38,28 +40,46 @@ export class LandingComponent implements OnInit {
       }
     });
   }
+
   loadVideos(): void {
     this.videoService.getAllVideos().subscribe({
       next: (data) => {
+        // ✅ Normalizuj URL-ove
         this.videos = data.map(video => ({
           ...video,
-          videoUrl: `http://localhost:8080/api/videos/${video.id}/stream`,
-          thumbnailUrl: `http://localhost:8080/api/videos/${video.id}/thumbnail`,
-          showVideo: false
+          thumbnailUrl: this.normalizeUrl(video.thumbnailUrl),
+          videoUrl: this.normalizeUrl(video.videoUrl)
         }));
         this.loading = false;
+        
+        console.log('✅ Videos loaded:', this.videos.length);
+        console.log('📸 First video thumbnail:', this.videos[0]?.thumbnailUrl);
       },
       error: (err) => {
-        console.error('Greška pri učitavanju videa', err);
+        console.error('❌ Greška pri učitavanju videa', err);
         this.errorMessage = 'Greška pri učitavanju videa';
         this.loading = false;
       }
     });
   }
 
+  // ✅ Normalizuj URL
+  private normalizeUrl(url: string | undefined): string {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8080${url}`;
+  }
+
+  // ✅ TrackBy funkcija za optimizaciju rendering-a
+  trackByVideoId(index: number, video: Video): number {
+    return video.id;
+  }
+
   onImgError(event: any): void {
+    console.error('❌ Image load failed for:', event.target.src);
     event.target.src = 'assets/default-thumbnail.png';
   }
+
   logout(): void {
     this.authService.logout();
     this.currentUser = null;

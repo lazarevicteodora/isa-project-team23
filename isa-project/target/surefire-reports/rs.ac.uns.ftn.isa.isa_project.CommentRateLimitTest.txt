@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: rs.ac.uns.ftn.isa.isa_project.CommentRateLimitTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.631 s <<< FAILURE! -- in rs.ac.uns.ftn.isa.isa_project.CommentRateLimitTest
+rs.ac.uns.ftn.isa.isa_project.CommentRateLimitTest.testCommentRateLimitExceeded -- Time elapsed: 0.011 s <<< ERROR!
+java.util.NoSuchElementException: No value present
+	at java.base/java.util.Optional.orElseThrow(Optional.java:377)
+	at rs.ac.uns.ftn.isa.isa_project.CommentRateLimitTest.testCommentRateLimitExceeded(CommentRateLimitTest.java:34)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

@@ -49,4 +49,8 @@ public interface UserService {
      * @return true ako je aktivacija uspešna
      */
     boolean activateAccount(String token);
+
+    User getUserById(Long id);
+
+
 }

@@ -8,8 +8,10 @@ export interface Video {
   viewCount?: number;  
   createdAt: string;       
   authorUsername: string;
+  authorId?: number;
   tags: string[];
   latitude?: number;       
   longitude?: number;
-
+  likeCount?: number;
+  commentCount?: number;
 }

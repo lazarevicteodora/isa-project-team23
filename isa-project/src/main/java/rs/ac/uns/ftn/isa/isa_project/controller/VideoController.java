@@ -10,6 +10,8 @@ import rs.ac.uns.ftn.isa.isa_project.dto.VideoResponseDTO;
 import rs.ac.uns.ftn.isa.isa_project.dto.VideoUploadDTO;
 import rs.ac.uns.ftn.isa.isa_project.model.Video;
 import rs.ac.uns.ftn.isa.isa_project.service.VideoService;
+import rs.ac.uns.ftn.isa.isa_project.service.LikeService;
+import rs.ac.uns.ftn.isa.isa_project.service.CommentService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import java.nio.file.Path;
@@ -25,6 +27,12 @@ public class VideoController {
     @Autowired
     private VideoService videoService;
 
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private CommentService commentService;
+
     /**
      * Endpoint za upload videa.
      * Koristi @ModelAttribute jer MultipartForm podaci ne idu u @RequestBody.
@@ -35,9 +43,12 @@ public class VideoController {
         try {
             // Pozivamo servis koji radi transakciju i čuvanje na disk
             Video savedVideo = videoService.createVideo(dto);
+            VideoResponseDTO response = new VideoResponseDTO(savedVideo);
 
+            response.setLikeCount(likeService.getLikeCount(savedVideo.getId()));
+            response.setCommentCount(commentService.getCommentCount(savedVideo.getId()));
             // Pakujemo u ResponseDTO (prema Claude-ovom modelu) da ne bismo otkrili putanje na disku
-            return new ResponseEntity<>(new VideoResponseDTO(savedVideo), HttpStatus.CREATED);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             // Ako se desi greška (npr. disk pun ili transakcija pukne), vraćamo 500
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -62,7 +73,11 @@ public class VideoController {
     public ResponseEntity<VideoResponseDTO> getVideo(@PathVariable Long id) {
         try {
             Video video = videoService.getVideoById(id);
-            return ResponseEntity.ok(new VideoResponseDTO(video));
+            VideoResponseDTO response = new VideoResponseDTO(video);
+
+            response.setLikeCount(likeService.getLikeCount(id));
+            response.setCommentCount(commentService.getCommentCount(id));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
@@ -73,7 +88,12 @@ public class VideoController {
     public ResponseEntity<List<VideoResponseDTO>> getAllVideos() {
         List<Video> videos = videoService.getAllVideos();
         List<VideoResponseDTO> dtoList = videos.stream()
-                .map(VideoResponseDTO::new)
+                .map(video -> {
+                    VideoResponseDTO dto = new VideoResponseDTO(video);
+                    dto.setLikeCount(likeService.getLikeCount(video.getId()));
+                    dto.setCommentCount(commentService.getCommentCount(video.getId()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtoList);
     }
