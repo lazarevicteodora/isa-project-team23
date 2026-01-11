@@ -28,12 +28,24 @@ export class VideoService {
   getVideoById(id: number): Observable<Video> {
     return this.http.get<Video>(`${this.apiUrl}/${id}`);
   }
-  uploadVideo(formData: FormData): Observable<HttpEvent<Video>> {
-    return this.http.post<Video>(this.apiUrl, formData, {
-      reportProgress: true,  
-      observe: 'events'      
-    });
-  }
+ uploadVideo(formData: FormData): Observable<HttpEvent<Video>> {
+  console.log('=== UPLOAD REQUEST ===');
+  console.log('FormData entries:');
+  formData.forEach((value, key) => {
+    if (value instanceof File) {
+      console.log(key + ':', value.name, value.size, value.type);
+    } else {
+      console.log(key + ':', value);
+    }
+  });
+  console.log('Authorization token:', localStorage.getItem('token'));
+  console.log('======================');
+
+  return this.http.post<Video>(this.apiUrl, formData, {
+    reportProgress: true,  
+    observe: 'events'      
+  });
+}
 
   incrementViewCount(videoId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${videoId}/view`, {});

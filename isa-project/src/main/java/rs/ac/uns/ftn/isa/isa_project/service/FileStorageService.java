@@ -25,19 +25,35 @@ public class FileStorageService {
      * Sinhronizovano čuvanje fajla
      */
     public String saveFile(MultipartFile file, String subfolder) throws IOException {
+        System.out.println("=== SAVE FILE START ===");
+        System.out.println("Original filename: " + file.getOriginalFilename());
+        System.out.println("File size: " + file.getSize());
+        System.out.println("Content type: " + file.getContentType());
+
         String projectPath = System.getProperty("user.dir");
+        System.out.println("Project path: " + projectPath);
+
         Path storageDirectory = Paths.get(projectPath, STORAGE_DIR, subfolder);
+        System.out.println("Storage directory: " + storageDirectory);
+
         Files.createDirectories(storageDirectory);
+        System.out.println("Directory created/exists: " + Files.exists(storageDirectory));
 
         String uniqueFilename = UUID.randomUUID() + getExtension(file.getOriginalFilename());
         Path targetPath = storageDirectory.resolve(uniqueFilename);
+        System.out.println("Target path: " + targetPath);
 
-        file.transferTo(targetPath.toFile());
-        logger.info("Fajl sačuvan: {}", targetPath);
-
-        return targetPath.toString();
+        try {
+            file.transferTo(targetPath.toFile());
+            System.out.println("✅ File saved successfully!");
+            logger.info("Fajl sačuvan: {}", targetPath);
+            return targetPath.toString();
+        } catch (Exception e) {
+            System.err.println("❌ TRANSFER FAILED!");
+            e.printStackTrace();
+            throw e;
+        }
     }
-
     /**
      * Asinhrono čuvanje fajla (za video sa timeout-om)
      */
