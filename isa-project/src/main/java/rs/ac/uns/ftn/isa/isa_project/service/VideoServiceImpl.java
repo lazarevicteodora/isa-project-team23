@@ -64,7 +64,6 @@ public class VideoServiceImpl implements VideoService {
             video.setAuthor(author);
             video.setVideoPath(videoPath);
             video.setThumbnailPath(thumbnailPath);
-
             // 4. Čuvanje u bazi
             return videoRepository.save(video);
 

@@ -32,7 +32,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         LOGGER.debug("Zahtev ka URI: " + request.getRequestURI() + " metoda: " + request.getMethod());
-
+        if (request.getRequestURI().contains("/api/videos") && request.getMethod().equals("POST")) {
+            LOGGER.debug("=== VIDEO UPLOAD REQUEST ===");
+            LOGGER.debug("Content-Type: " + request.getContentType());
+            LOGGER.debug("Content-Length: " + request.getContentLength());
+            LOGGER.debug("Authorization header: " + request.getHeader("Authorization"));
+            LOGGER.debug("============================");
+        }
         String email;
 
         // 1. Preuzimanje JWT tokena iz zahteva (iz Authorization header-a)
@@ -52,13 +58,19 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     LOGGER.debug("Token validan, postavljena autentifikacija za: " + email);
 
                     // 4. Provera da li je token validan
-                    if (tokenUtils.validateToken(authToken, userDetails)) {
-                        LOGGER.debug("Token nije validan za: " + email);
+                    LOGGER.debug("Pre validacije - email: " + email + ", userDetails: " + userDetails);
+                    boolean isValid = tokenUtils.validateToken(authToken, userDetails);
+                    LOGGER.debug("Validacija tokena rezultat: " + isValid);
+
+                    if (isValid) {
+                        LOGGER.debug("✅ Token JE validan za: " + email);
 
                         // 5. Kreiranje autentifikacije i postavljanje u Security kontekst
                         TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
                         authentication.setToken(authToken);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } else {
+                        LOGGER.debug("❌ Token NIJE validan za: " + email);
                     }
                 }
             }
