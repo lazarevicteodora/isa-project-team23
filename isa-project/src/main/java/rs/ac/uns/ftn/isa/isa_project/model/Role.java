@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 
-/**
- * POJO koji implementira Spring Security GrantedAuthority.
- * Definiše role u aplikaciji (ROLE_USER, ROLE_ADMIN, itd.)
- */
 @Entity
 @Table(name = "role")
 public class Role implements GrantedAuthority {
@@ -30,7 +26,6 @@ public class Role implements GrantedAuthority {
         this.name = name;
     }
 
-    // ==================== Getters and Setters ====================
 
     public Long getId() {
         return id;
@@ -48,15 +43,11 @@ public class Role implements GrantedAuthority {
         this.name = name;
     }
 
-    // ==================== GrantedAuthority Interface Method ====================
-
     @JsonIgnore
     @Override
     public String getAuthority() {
         return name;
     }
-
-    // ==================== equals, hashCode, toString ====================
 
     @Override
     public boolean equals(Object o) {

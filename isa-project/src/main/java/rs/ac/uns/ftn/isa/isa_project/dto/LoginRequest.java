@@ -3,10 +3,6 @@ package rs.ac.uns.ftn.isa.isa_project.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * DTO za login korisnika.
- * Prima email i lozinku.
- */
 public class LoginRequest {
 
     @NotBlank(message = "Email je obavezan")

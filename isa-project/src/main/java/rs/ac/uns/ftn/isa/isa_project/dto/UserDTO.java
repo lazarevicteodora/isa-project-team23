@@ -19,7 +19,6 @@ public class UserDTO {
         this.lastName = user.getLastName();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

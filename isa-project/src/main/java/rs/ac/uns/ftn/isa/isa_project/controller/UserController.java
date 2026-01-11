@@ -14,13 +14,6 @@ import rs.ac.uns.ftn.isa.isa_project.service.UserService;
 
 import java.util.List;
 
-/**
- * REST kontroler za upravljanje korisnicima.
- *
- * Endpointi:
- * - GET /api/users/whoami - Vraća trenutno ulogovanog korisnika
- * - GET /api/users/all    - Vraća sve korisnike (samo za ADMIN)
- */
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -29,14 +22,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    /**
-     * GET /api/users/whoami
-     *
-     * Vraća informacije o trenutno ulogovanom korisniku.
-     * Zahteva autentifikaciju (JWT token).
-     *
-     * @return trenutno ulogovani korisnik
-     */
     @GetMapping("/whoami")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getCurrentUser() {
@@ -51,14 +36,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    /**
-     * GET /api/users/all
-     *
-     * Vraća sve korisnike u sistemu.
-     * SAMO za administratore (ROLE_ADMIN).
-     *
-     * @return lista svih korisnika
-     */
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -71,7 +48,6 @@ public class UserController {
         try {
             User user = userService.getUserById(id);
 
-            // Kreiraj DTO da ne vraćaš lozinku i ostale osetljive podatke
             Map<String, Object> userDTO = new HashMap<>();
             userDTO.put("id", user.getId());
             userDTO.put("username", user.getUsername());

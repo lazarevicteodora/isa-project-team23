@@ -16,11 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.ExpiredJwtException;
 import rs.ac.uns.ftn.isa.isa_project.util.TokenUtils;
 
-/**
- * Filter koji presreće SVAKI HTTP zahtev ka serveru (osim onih u security config).
- * Filter proverava da li JWT token postoji u Authorization header-u.
- * Ako token postoji i validan je, korisnik se autentifikuje.
- */
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private TokenUtils tokenUtils;

@@ -11,10 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/**
- * POJO koji implementira Spring Security UserDetails interfejs.
- * Entitet koji predstavlja korisnika u sistemu Jutjubić.
- */
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -45,21 +41,12 @@ public class User implements UserDetails {
     @Column(name = "address", nullable = false)
     private String address;
 
-    /**
-     * Da li je korisnik aktivirao nalog preko email linka
-     */
     @Column(name = "activated", nullable = false)
     private boolean activated = false;
 
-    /**
-     * Token koji se šalje u email-u za aktivaciju naloga
-     */
     @Column(name = "activation_token")
     private String activationToken;
 
-    /**
-     * Da li je nalog omogućen (može se koristiti za ban/unban)
-     */
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
 
@@ -73,6 +60,34 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     private List<Role> roles;
+
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Channel channel;
+
+    @OneToMany(mappedBy = "subscriber", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Subscription> subscriptions;
+
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Playlist> playlists;
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<VideoLike> likes;
+
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Report> reports;
+
 
     public User() {
         super();
@@ -89,7 +104,6 @@ public class User implements UserDetails {
         this.enabled = true;
     }
 
-    // ==================== Getters and Setters ====================
 
     public Long getId() {
         return id;
@@ -190,7 +204,62 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    // ==================== UserDetails Interface Methods ====================
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public List<Playlist> getPlaylists() {
+        return playlists;
+    }
+
+    public void setPlaylists(List<Playlist> playlists) {
+        this.playlists = playlists;
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<VideoLike> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<VideoLike> likes) {
+        this.likes = likes;
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
+    }
+
 
     @JsonIgnore
     @Override
@@ -198,34 +267,24 @@ public class User implements UserDetails {
         return this.roles;
     }
 
-    /**
-     * Nalog nikada ne ističe
-     */
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
-    /**
-     * Nalog nikada nije zaključan
-     */
     @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
-    /**
-     * Kredencijali (lozinka) nikada ne ističu
-     */
     @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    // ==================== equals, hashCode, toString ====================
 
     @Override
     public boolean equals(Object o) {

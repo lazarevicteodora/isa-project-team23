@@ -8,11 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Ova klasa se poziva kada korisnik pokuša da pristupi zaštićenom resursu
- * bez validnih kredencijala (bez JWT tokena ili sa nevažećim tokenom).
- * Vraća 401 Unauthorized response.
- */
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

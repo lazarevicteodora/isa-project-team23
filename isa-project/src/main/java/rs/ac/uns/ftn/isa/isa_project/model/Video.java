@@ -59,6 +59,22 @@ public class Video {
     @JsonIgnore
     private List<VideoLike> likes = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<VideoPlaylist> playlists = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Report> reports = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -183,6 +199,38 @@ public class Video {
         this.likes = likes;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public List<VideoPlaylist> getPlaylists() {
+        return playlists;
+    }
+
+    public void setPlaylists(List<VideoPlaylist> playlists) {
+        this.playlists = playlists;
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -204,6 +252,8 @@ public class Video {
                 ", title='" + title + '\'' +
                 ", createdAt=" + createdAt +
                 ", author=" + (author != null ? author.getUsername() : "null") +
+                ", channel=" + (channel != null ? channel.getName() : "null") +
+                ", category=" + (category != null ? category.getName() : "null") +
                 '}';
     }
 }

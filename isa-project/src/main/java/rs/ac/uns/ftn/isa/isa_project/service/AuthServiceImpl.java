@@ -13,10 +13,6 @@ import rs.ac.uns.ftn.isa.isa_project.dto.UserTokenState;
 import rs.ac.uns.ftn.isa.isa_project.model.User;
 import rs.ac.uns.ftn.isa.isa_project.util.TokenUtils;
 
-/**
- * Implementacija AuthService interfejsa.
- * Sadrži biznis logiku za autentifikaciju i autorizaciju.
- */
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -29,25 +25,11 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private TokenUtils tokenUtils;
 
-    /**
-     * Registruje novog korisnika.
-     * Poziva UserService.register() koji radi svu logiku.
-     */
     @Override
     public User register(RegisterRequest registerRequest) {
         return userService.register(registerRequest);
     }
 
-    /**
-     * Autentifikuje korisnika i vraća JWT token.
-     *
-     * Koraci:
-     * 1. Pronađi korisnika po email-u
-     * 2. Proveri da li je nalog aktiviran
-     * 3. Proveri lozinku (Spring Security to radi automatski)
-     * 4. Generiši JWT token
-     * 5. Vrati token klijentu
-     */
     @Override
     public UserTokenState login(LoginRequest loginRequest) {
         // 1. Pronalaženje korisnika po email-u
@@ -83,9 +65,6 @@ public class AuthServiceImpl implements AuthService {
         return new UserTokenState(jwt, expiresIn);
     }
 
-    /**
-     * Aktivira korisnikov nalog preko aktivacionog tokena.
-     */
     @Override
     public boolean activateAccount(String token) {
         return userService.activateAccount(token);
