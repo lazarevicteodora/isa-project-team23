@@ -13,12 +13,14 @@ import rs.ac.uns.ftn.isa.isa_project.model.User;
 import rs.ac.uns.ftn.isa.isa_project.model.Video;
 import rs.ac.uns.ftn.isa.isa_project.repository.VideoRepository;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class VideoServiceImpl implements VideoService {
@@ -66,16 +68,35 @@ public class VideoServiceImpl implements VideoService {
             // 4. Čuvanje u bazi
             return videoRepository.save(video);
 
+        } catch (TimeoutException e) {
+            // Timeout - ROLLBACK FAJLOVA!
+            logger.error("TIMEOUT! Pokrećem rollback fajlova...");
+            rollbackFiles(uploadedFiles);
+            throw e; // Prosleđujemo dalje u Controller
+
+        } catch (IOException e) {
+            // I/O greška - ROLLBACK FAJLOVA!
+            logger.error("I/O GREŠKA! Pokrećem rollback fajlova...");
+            rollbackFiles(uploadedFiles);
+            throw e; // Prosleđujemo dalje
+
         } catch (Exception e) {
-            // ROLLBACK FAJLOVA!
-            logger.error("Greška! Pokrećem rollback fajlova...");
-            for (String filePath : uploadedFiles) {
-                fileStorageService.deleteFile(filePath);
-            }
-            throw new Exception("Kreiranje videa neuspelo: " + e.getMessage());
+            // Bilo koja druga greška (DB, validacija) - ROLLBACK FAJLOVA!
+            logger.error("GREŠKA! Pokrećem rollback fajlova: {}", e.getMessage());
+            rollbackFiles(uploadedFiles);
+            throw new Exception("Kreiranje videa neuspelo: " + e.getMessage(), e);
         }
     }
-
+    private void rollbackFiles(List<String> uploadedFiles) {
+        for (String filePath : uploadedFiles) {
+            boolean deleted = fileStorageService.deleteFile(filePath);
+            if (deleted) {
+                logger.info("Fajl obrisan: {}", filePath);
+            } else {
+                logger.warn("Nije moguće obrisati fajl: {}", filePath);
+            }
+        }
+    }
     @Override
     @Cacheable(value = "thumbnails", key = "#videoId")
     public byte[] getThumbnailContent(Long videoId) throws Exception {
