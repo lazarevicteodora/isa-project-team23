@@ -21,87 +21,52 @@ import rs.ac.uns.ftn.isa.isa_project.security.TokenAuthenticationFilter;
 import rs.ac.uns.ftn.isa.isa_project.service.CustomUserDetailsService;
 import rs.ac.uns.ftn.isa.isa_project.util.TokenUtils;
 
-/**
- * Glavna Spring Security konfiguracija.
- * Definiše:
- * - JWT autentifikaciju (umesto session-based)
- * - BCrypt password encoder
- * - Koja ruta zahteva autentifikaciju, a koja ne
- * - CORS i CSRF postavke
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig {
 
-    /**
-     * Servis koji učitava korisnike iz baze
-     */
     @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService();
     }
 
-    /**
-     * BCrypt encoder za heširanje lozinki
-     */
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Authentication provider koji koristi UserDetailsService i PasswordEncoder
-     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        // Nova verzija zahteva UserDetailsService odmah u konstruktoru
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
 
-        // Zatim normalno postavljamo password encoder
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
     }
 
-    /**
-     * Handler za vraćanje 401 Unauthorized
-     */
     @Autowired
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
-    /**
-     * AuthenticationManager - Spring Security ga koristi za autentifikaciju
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    /**
-     * TokenUtils - za generisanje i validaciju JWT tokena
-     */
     @Autowired
     private TokenUtils tokenUtils;
 
-    /**
-     * Glavna Security konfiguracija - definišemo pristupna pravila
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // STATELESS session - ne čuvamo sesije na serveru (koristimo JWT)
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
-        // Sve neautentifikovane zahteve obradi uniformno - vrati 401
         http.exceptionHandling(exception ->
                 exception.authenticationEntryPoint(restAuthenticationEntryPoint)
         );
 
-        // Definišemo koja ruta zahteva autentifikaciju
-        // VAŽNO: Redosled je KRITIČAN - od najspecifičnijih ka najopštijim!
         http.authorizeHttpRequests(auth -> auth
                 // Auth endpoint-i - javno dostupni
                 .requestMatchers("/api/auth/**").permitAll()
@@ -130,19 +95,15 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
         );
 
-        // CORS konfiguracija - koristi CorsConfig bean
         http.cors(cors -> cors.configure(http));
 
-        // CSRF - onemogućeno jer koristimo JWT (ne cookie-based auth)
         http.csrf(csrf -> csrf.disable());
 
-        // Dodaj custom JWT filter PRIJE BasicAuthenticationFilter-a
         http.addFilterBefore(
                 new TokenAuthenticationFilter(tokenUtils, userDetailsService()),
                 BasicAuthenticationFilter.class
         );
 
-        // Postavi authentication provider
         http.authenticationProvider(authenticationProvider());
 
         return http.build();

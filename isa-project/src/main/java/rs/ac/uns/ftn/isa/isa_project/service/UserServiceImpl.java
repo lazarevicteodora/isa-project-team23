@@ -16,10 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Implementacija UserService interfejsa.
- * Sadrži biznis logiku za rad sa korisnicima.
- */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -60,19 +56,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Registruje novog korisnika.
-     *
-     * Koraci:
-     * 1. Proveri da li email već postoji
-     * 2. Proveri da li username već postoji
-     * 3. Proveri da li se lozinke poklapaju
-     * 4. Heširaj lozinku
-     * 5. Generiši aktivacioni token
-     * 6. Dodeli ROLE_USER rolu
-     * 7. Sačuvaj korisnika
-     * 8. Pošalji aktivacioni email
-     */
     @Override
     @Transactional
     public User register(RegisterRequest request) {
@@ -125,16 +108,6 @@ public class UserServiceImpl implements UserService {
         return savedUser;
     }
 
-    /**
-     * Aktivira korisnikov nalog preko aktivacionog tokena.
-     *
-     * Koraci:
-     * 1. Pronađi korisnika sa datim aktivacionim tokenom
-     * 2. Proveri da li je korisnik već aktiviran
-     * 3. Aktiviraj korisnika
-     * 4. Obriši aktivacioni token
-     * 5. Sačuvaj izmene
-     */
     @Override
     @Transactional
     public boolean activateAccount(String token) {

@@ -7,15 +7,8 @@ import rs.ac.uns.ftn.isa.isa_project.model.Role;
 
 import java.util.Optional;
 
-/**
- * Repository interfejs za Role entitet.
- * Spring Data JPA automatski kreira implementaciju.
- */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    /**
-     * Pronalazi rolu po imenu (npr. "ROLE_USER")
-     */
     Optional<Role> findByName(String name);
 }

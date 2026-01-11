@@ -8,9 +8,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-/**
- * Servis za slanje emailova.
- */
 @Service
 public class EmailService {
 
@@ -23,11 +20,6 @@ public class EmailService {
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
 
-    /**
-     * Asinhrono šalje email za aktivaciju naloga
-     * @param toEmail Email adresa primaoca
-     * @param activationToken Token za aktivaciju
-     */
     @Async
     public void sendActivationEmail(String toEmail, String activationToken) throws MailException {
         System.out.println("Slanje aktivacionog email-a na: " + toEmail);
@@ -47,9 +39,6 @@ public class EmailService {
         System.out.println("Aktivacioni email poslat na: " + toEmail);
     }
 
-    /**
-     * Šalje obični email
-     */
     private void sendEmail(String to, String subject, String body) {
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setTo(to);
