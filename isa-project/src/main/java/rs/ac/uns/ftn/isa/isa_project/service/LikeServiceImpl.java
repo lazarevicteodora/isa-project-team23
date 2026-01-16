@@ -34,13 +34,13 @@ public class LikeServiceImpl implements LikeService {
             // Ukloni lajk
             likeRepository.deleteByVideoIdAndUserId(videoId, user.getId());
             LOG.info("User {} unliked video {}", user.getUsername(), videoId);
-            return false; // unliked
+            return false;
         } else {
             // Dodaj lajk
             VideoLike like = new VideoLike(video, user);
             likeRepository.save(like);
             LOG.info("User {} liked video {}", user.getUsername(), videoId);
-            return true; // liked
+            return true;
         }
     }
 

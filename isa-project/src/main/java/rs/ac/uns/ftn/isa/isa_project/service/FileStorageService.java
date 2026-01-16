@@ -71,7 +71,7 @@ public class FileStorageService {
     }
 
     /**
-     * Čuva video sa timeout-om (KLJUČNA METODA ZA 3.3!)
+     * Čuva video sa timeout-om
      */
     public String saveVideoWithTimeout(MultipartFile file, String subfolder, long timeout, TimeUnit unit) throws Exception {
         try {

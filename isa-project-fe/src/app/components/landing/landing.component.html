@@ -41,7 +41,6 @@
       <div class="video-card" *ngFor="let video of videos; trackBy: trackByVideoId">
         <a [routerLink]="['/video', video.id]" class="video-card-link">
           <div class="video-thumbnail">
-            <!-- ✅ DODAJ loading="lazy" za optimizaciju -->
             <img 
               [src]="video.thumbnailUrl" 
               [alt]="video.title" 

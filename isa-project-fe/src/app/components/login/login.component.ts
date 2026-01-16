@@ -37,7 +37,6 @@ export class LoginComponent {
       this.loading = false;
       console.log('✅ Login successful!', response);
       
-      // PROVERI DA LI JE TOKEN SAČUVAN
       const token = localStorage.getItem('token');
       console.log('🔑 Token after login:', token ? 'EXISTS' : 'NULL');
       
