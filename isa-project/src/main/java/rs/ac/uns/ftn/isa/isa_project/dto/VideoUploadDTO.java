@@ -8,15 +8,6 @@ import rs.ac.uns.ftn.isa.isa_project.validation.FileExtension;
 import rs.ac.uns.ftn.isa.isa_project.validation.FileSize;
 import java.util.Set;
 
-/**
- * DTO za upload novog videa.
- * Prima podatke sa fronta u multipart/form-data formatu.
- *
- * Sadrži:
- * - Tekstualne podatke (title, description, tags)
- * - Fajlove (thumbnail, video)
- * - Geografsku lokaciju (opciono)
- */
 public class VideoUploadDTO {
 
     @NotBlank(message = "Naslov je obavezan")
@@ -26,10 +17,6 @@ public class VideoUploadDTO {
     @Size(max = 5000, message = "Opis može imati maksimalno 5000 karaktera")
     private String description;
 
-    /**
-     * Tagovi odvojeni zarezom (npr. "gaming,tutorial,java")
-     * Frontend će ih slati kao String, a mi ih parsiramo u Set.
-     */
     private String tags;
 
     @NotNull(message = "Thumbnail slika je obavezna")
@@ -41,14 +28,7 @@ public class VideoUploadDTO {
     @FileExtension(allowed = {"mp4"}, message = "Video mora biti MP4")
     private MultipartFile video;
 
-    /**
-     * Geografska lokacija - latitude (opciono)
-     */
     private Double latitude;
-
-    /**
-     * Geografska lokacija - longitude (opciono)
-     */
     private Double longitude;
 
     // ==================== Constructors ====================
@@ -95,10 +75,7 @@ public class VideoUploadDTO {
         this.tags = tags;
     }
 
-    /**
-     * Parsira tagove iz String-a u Set.
-     * Primer: "gaming,tutorial,java" → Set("gaming", "tutorial", "java")
-     */
+
     public Set<String> getParsedTags() {
         if (tags == null || tags.isBlank()) {
             return Set.of();

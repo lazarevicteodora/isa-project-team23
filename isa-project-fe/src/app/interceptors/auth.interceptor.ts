@@ -8,7 +8,7 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     console.log('🌐 Interceptor activated for:', req.url);
     
-const token = localStorage.getItem('token');  // ✅ Promeni sa 'jwt' na 'token'
+const token = localStorage.getItem('token'); 
     console.log('🔑 Token from localStorage:', token);
 
     if (token) {

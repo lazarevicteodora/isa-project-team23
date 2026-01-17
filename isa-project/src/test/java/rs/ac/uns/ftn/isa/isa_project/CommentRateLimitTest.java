@@ -50,12 +50,11 @@ public class CommentRateLimitTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        // Cleanup - isto kao kod video testova
+        // Cleanup
         commentRepository.deleteAll();
         videoRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Role
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
 

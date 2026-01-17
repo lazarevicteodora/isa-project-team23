@@ -171,7 +171,7 @@
   transform: scale(1.05);
 }
 
-/* ✅ Play overlay - pojavi se na hover */
+
 .play-overlay {
   position: absolute;
   top: 0;
@@ -269,7 +269,7 @@
   margin-bottom: 2rem;
 }
 
-/* ========== Video Player - KLJUČNI DEO ========== */
+/* ========== Video Player ========== */
 .video-player-container {
   width: 100%;
   background: #000;
@@ -282,7 +282,6 @@
 .video-player {
   width: 100%;
   height: 100%;
-  /* "contain" osigurava da se video ne rasteže/izdužuje, već zadržava svoj oblik */
   object-fit: contain; 
   display: block;
 }

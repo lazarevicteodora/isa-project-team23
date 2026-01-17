@@ -44,7 +44,6 @@ export class LandingComponent implements OnInit {
   loadVideos(): void {
     this.videoService.getAllVideos().subscribe({
       next: (data) => {
-        // ✅ Normalizuj URL-ove
         this.videos = data.map(video => ({
           ...video,
           thumbnailUrl: this.normalizeUrl(video.thumbnailUrl),
@@ -63,14 +62,12 @@ export class LandingComponent implements OnInit {
     });
   }
 
-  // ✅ Normalizuj URL
   private normalizeUrl(url: string | undefined): string {
     if (!url) return '';
     if (url.startsWith('http')) return url;
     return `http://localhost:8080${url}`;
   }
 
-  // ✅ TrackBy funkcija za optimizaciju rendering-a
   trackByVideoId(index: number, video: Video): number {
     return video.id;
   }

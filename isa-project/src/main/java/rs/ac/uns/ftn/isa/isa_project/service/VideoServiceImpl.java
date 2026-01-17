@@ -64,23 +64,20 @@ public class VideoServiceImpl implements VideoService {
             video.setAuthor(author);
             video.setVideoPath(videoPath);
             video.setThumbnailPath(thumbnailPath);
-            // 4. Čuvanje u bazi
+
             return videoRepository.save(video);
 
         } catch (TimeoutException e) {
-            // Timeout - ROLLBACK FAJLOVA!
             logger.error("TIMEOUT! Pokrećem rollback fajlova...");
             rollbackFiles(uploadedFiles);
-            throw e; // Prosleđujemo dalje u Controller
+            throw e;
 
         } catch (IOException e) {
-            // I/O greška - ROLLBACK FAJLOVA!
             logger.error("I/O GREŠKA! Pokrećem rollback fajlova...");
             rollbackFiles(uploadedFiles);
-            throw e; // Prosleđujemo dalje
+            throw e;
 
         } catch (Exception e) {
-            // Bilo koja druga greška (DB, validacija) - ROLLBACK FAJLOVA!
             logger.error("GREŠKA! Pokrećem rollback fajlova: {}", e.getMessage());
             rollbackFiles(uploadedFiles);
             throw new Exception("Kreiranje videa neuspelo: " + e.getMessage(), e);
@@ -129,12 +126,9 @@ public class VideoServiceImpl implements VideoService {
         Video video = videoRepository.findByIdForUpdate(videoId)
                 .orElseThrow(() -> new RuntimeException("Video ne postoji!"));
 
-        // 2. Incrementuj brojač
         video.setViewCount(video.getViewCount() + 1);
 
-        // 3. Sačuvaj (automatski se čuva zbog @Transactional)
         videoRepository.save(video);
 
-        // Lock se oslobađa na kraju metode (na kraju transakcije)
     }
 }

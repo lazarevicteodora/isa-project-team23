@@ -35,7 +35,6 @@ public class VideoController {
 
     /**
      * Endpoint za upload videa.
-     * Koristi @ModelAttribute jer MultipartForm podaci ne idu u @RequestBody.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')") // Samo ulogovani korisnici mogu da uploaduju
@@ -47,7 +46,7 @@ public class VideoController {
 
             response.setLikeCount(likeService.getLikeCount(savedVideo.getId()));
             response.setCommentCount(commentService.getCommentCount(savedVideo.getId()));
-            // Pakujemo u ResponseDTO (prema Claude-ovom modelu) da ne bismo otkrili putanje na disku
+
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             // Ako se desi greška (npr. disk pun ili transakcija pukne), vraćamo 500

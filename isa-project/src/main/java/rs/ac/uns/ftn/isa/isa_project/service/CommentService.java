@@ -10,7 +10,7 @@ import rs.ac.uns.ftn.isa.isa_project.model.User;
 
 public interface CommentService {
 
-    @Cacheable(value = "video_comments", key = "#videoId + ':' + #pageable.pageNumber + ':' + #pageable.pageSize")
+    @Cacheable(value = "video_comments")
     Page<CommentDTO> getCommentsByVideoId(Long videoId, Pageable pageable);
 
     Comment addComment(Long videoId, String content, User user);
@@ -19,6 +19,6 @@ public interface CommentService {
     void deleteComment(Long commentId, User user);
 
     long getCommentCount(Long videoId);
-    
+
     void resetRateLimits();
 }

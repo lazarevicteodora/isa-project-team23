@@ -34,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentDTO> getCommentsByVideoId(Long videoId, Pageable pageable) {
-        System.out.println("[CACHE] GET comments for video " + videoId + " - QUERYING DATABASE");
+        System.out.println("[CACHE] GET comments for video " + videoId);
 
         LOG.info("Fetching comments for video {} (page {}, size {})",
                 videoId, pageable.getPageNumber(), pageable.getPageSize());
@@ -79,6 +79,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "video_comments", allEntries = true)
     public void deleteComment(Long commentId, User user) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
