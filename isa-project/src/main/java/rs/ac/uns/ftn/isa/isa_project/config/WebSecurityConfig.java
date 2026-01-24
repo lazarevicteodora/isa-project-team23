@@ -81,7 +81,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/comments/count").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/count").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/status").permitAll()
-
+                .requestMatchers("/health").permitAll()
                 // Video POST endpoint-i - specifični PRVO
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()  // View count je javno
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/comments").authenticated()  // Komentari - AUTH

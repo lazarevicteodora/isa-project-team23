@@ -41,14 +41,8 @@ public class VideoUploadDTO {
     @FileExtension(allowed = {"mp4"}, message = "Video mora biti MP4")
     private MultipartFile video;
 
-    /**
-     * Geografska lokacija - latitude (opciono)
-     */
-    private Double latitude;
 
-    /**
-     * Geografska lokacija - longitude (opciono)
-     */
+    private Double latitude;
     private Double longitude;
 
     // ==================== Constructors ====================
