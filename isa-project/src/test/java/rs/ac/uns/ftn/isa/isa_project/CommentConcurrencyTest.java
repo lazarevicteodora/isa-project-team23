@@ -53,12 +53,10 @@ public class CommentConcurrencyTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        // Cleanup - isto kao kod video testova
         commentRepository.deleteAll();
         videoRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Role
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
 

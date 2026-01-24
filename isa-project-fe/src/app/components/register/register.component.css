@@ -3,7 +3,6 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  /* Isti tamni gradijent kao na Login stranici */
   background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
   padding: 20px;
 }
@@ -14,7 +13,7 @@
   border-radius: 12px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 500px; /* Malo šire zbog više polja za unos */
+  max-width: 500px; 
 }
 
 h2 {
@@ -49,12 +48,12 @@ label {
 
 .form-control:focus {
   outline: none;
-  border-color: #3498db; /* Tvoja plava boja */
+  border-color: #3498db;
   box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
 }
 
 .btn-primary {
-  background-color: #3498db; /* Tvoja plava boja */
+  background-color: #3498db;
   color: white;
   width: 100%;
   padding: 12px;
@@ -75,7 +74,6 @@ label {
   cursor: not-allowed;
 }
 
-/* Alert poruke usklađene sa dizajnom */
 .alert {
   padding: 12px;
   border-radius: 6px;

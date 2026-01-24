@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +62,7 @@ public class FileStorageService {
     public CompletableFuture<String> saveFileAsync(MultipartFile file, String subfolder) {
         try {
             // SIMULACIJA DUGOG UPLOAD-A - odkomentiraj za testiranje!
-            // Thread.sleep(Duration.ofMinutes(6).toMillis());
+            //Thread.sleep(Duration.ofSeconds(15000).toMillis());
 
             String path = saveFile(file, subfolder);
             return CompletableFuture.completedFuture(path);
@@ -71,7 +72,7 @@ public class FileStorageService {
     }
 
     /**
-     * Čuva video sa timeout-om (KLJUČNA METODA ZA 3.3!)
+     * Čuva video sa timeout-om
      */
     public String saveVideoWithTimeout(MultipartFile file, String subfolder, long timeout, TimeUnit unit) throws Exception {
         try {

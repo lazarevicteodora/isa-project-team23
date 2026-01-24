@@ -82,13 +82,12 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/count").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/status").permitAll()
                 .requestMatchers("/health").permitAll()
-                // Video POST endpoint-i - specifični PRVO
-                .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()  // View count je javno
-                .requestMatchers(HttpMethod.POST, "/api/videos/*/comments").authenticated()  // Komentari - AUTH
-                .requestMatchers(HttpMethod.POST, "/api/videos/*/likes").authenticated()  // Lajkovi - AUTH
-                .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()  // Upload videa - AUTH (POSLEDNJI!)
 
-                // Comment DELETE - zahteva autentifikaciju
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()
+
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/comments").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/videos/*/likes").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/videos/*/comments/*").authenticated()
 
                 // Sve ostalo zahteva autentifikaciju
