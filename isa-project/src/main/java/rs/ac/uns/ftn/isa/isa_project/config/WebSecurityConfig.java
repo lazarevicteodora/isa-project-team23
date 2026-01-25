@@ -71,6 +71,8 @@ public class WebSecurityConfig {
                 // Auth endpoint-i - javno dostupni
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()
+
+                // Video GET endpoint-i - javno dostupni (ZADATAK 3.1)
                 .requestMatchers(HttpMethod.GET, "/api/videos").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/thumbnail").permitAll()
@@ -79,13 +81,16 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/comments/count").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/count").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/videos/*/likes/status").permitAll()
+                .requestMatchers("/health").permitAll()
+
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()
-                
+
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/comments").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/likes").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/videos/*/comments/*").authenticated()
 
+                // Sve ostalo zahteva autentifikaciju
                 .anyRequest().authenticated()
         );
 

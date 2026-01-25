@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database - JEDNA za obe replike
+  postgres:
+    image: postgres:15-alpine
+    container_name: jutjubic-postgres
+    environment:
+      POSTGRES_DB: jutjubic
+      POSTGRES_USER: jutjubic_user
+      POSTGRES_PASSWORD: super_secret_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Inicijalizacioni SQL (opciono)
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - jutjubic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jutjubic_user -d jutjubic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend Replica 1
+  backend1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jutjubic-backend1
+    environment:
+      # Replica identifikacija
+      REPLICA_ID: replica-1
+      SERVER_PORT: 8080
+
+      # Database connection
+      DB_URL: jdbc:postgresql://postgres:5432/jutjubic
+      DB_USERNAME: jutjubic_user
+      DB_PASSWORD: super_secret_password
+
+      # Spring profiles
+      SPRING_PROFILES_ACTIVE: production
+
+      # JVM options
+      JAVA_OPTS: >
+        -Xms512m
+        -Xmx1024m
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=200
+    ports:
+      - "8081:8080"  # Za direktan pristup (testing)
+    volumes:
+      - ./storage:/app/storage  # Shared storage za video fajlove
+      - ./cache:/app/cache      # Shared cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jutjubic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Backend Replica 2
+  backend2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jutjubic-backend2
+    environment:
+      # Replica identifikacija
+      REPLICA_ID: replica-2
+      SERVER_PORT: 8080
+
+      # Database connection (ISTA kao replica 1!)
+      DB_URL: jdbc:postgresql://postgres:5432/jutjubic
+      DB_USERNAME: jutjubic_user
+      DB_PASSWORD: super_secret_password
+
+      # Spring profiles
+      SPRING_PROFILES_ACTIVE: production
+
+      # JVM options
+      JAVA_OPTS: >
+        -Xms512m
+        -Xmx1024m
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=200
+    ports:
+      - "8082:8080"  # Za direktan pristup (testing)
+    volumes:
+      - ./storage:/app/storage  # Shared storage za video fajlove
+      - ./cache:/app/cache      # Shared cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jutjubic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: jutjubic-nginx
+    ports:
+      - "80:80"      # HTTP
+      - "443:443"    # HTTPS (za budućnost)
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - jutjubic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/nginx-health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  jutjubic-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
