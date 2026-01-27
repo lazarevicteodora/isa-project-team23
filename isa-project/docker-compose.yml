@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   # PostgreSQL Database - JEDNA za obe replike
@@ -6,11 +6,11 @@ services:
     image: postgres:15-alpine
     container_name: jutjubic-postgres
     environment:
-      POSTGRES_DB: jutjubic
-      POSTGRES_USER: jutjubic_user
-      POSTGRES_PASSWORD: super_secret_password
+      POSTGRES_DB: isa_project_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Inicijalizacioni SQL (opciono)
@@ -18,8 +18,7 @@ services:
     networks:
       - jutjubic-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U jutjubic_user -d jutjubic"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d isa_project_db"]
       timeout: 5s
       retries: 5
     restart: unless-stopped
@@ -36,9 +35,9 @@ services:
       SERVER_PORT: 8080
 
       # Database connection
-      DB_URL: jdbc:postgresql://postgres:5432/jutjubic
-      DB_USERNAME: jutjubic_user
-      DB_PASSWORD: super_secret_password
+      DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
 
       # Spring profiles
       SPRING_PROFILES_ACTIVE: production
@@ -79,9 +78,9 @@ services:
       SERVER_PORT: 8080
 
       # Database connection (ISTA kao replica 1!)
-      DB_URL: jdbc:postgresql://postgres:5432/jutjubic
-      DB_USERNAME: jutjubic_user
-      DB_PASSWORD: super_secret_password
+      DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
 
       # Spring profiles
       SPRING_PROFILES_ACTIVE: production
