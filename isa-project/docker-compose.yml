@@ -34,6 +34,11 @@ services:
       REPLICA_ID: replica-1
       SERVER_PORT: 8080
 
+      #REPLIKA ZA CRDT SINHRONIZACIJU
+      REPLICA_URLS: http://backend2:8080
+      CRDT_PUSH_ENABLED: "true"
+      CRDT_PERIODIC_ENABLED: "true"
+
       # Database connection
       DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
       DB_USERNAME: postgres
@@ -76,6 +81,10 @@ services:
       # Replica identifikacija
       REPLICA_ID: replica-2
       SERVER_PORT: 8080
+
+      REPLICA_URLS: http://backend1:8080
+      CRDT_PUSH_ENABLED: "true"
+      CRDT_PERIODIC_ENABLED: "true"
 
       # Database connection (ISTA kao replica 1!)
       DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
