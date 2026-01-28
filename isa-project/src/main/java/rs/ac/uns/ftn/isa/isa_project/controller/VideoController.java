@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.isa.isa_project.dto.VideoResponseDTO;
 import rs.ac.uns.ftn.isa.isa_project.dto.VideoUploadDTO;
 import rs.ac.uns.ftn.isa.isa_project.model.Video;
+import rs.ac.uns.ftn.isa.isa_project.service.CRDTViewCountService;
 import rs.ac.uns.ftn.isa.isa_project.service.VideoService;
 import rs.ac.uns.ftn.isa.isa_project.service.LikeService;
 import rs.ac.uns.ftn.isa.isa_project.service.CommentService;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -126,4 +128,21 @@ public class VideoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();  // 500
         }
     }
-}
+
+        @Autowired
+        private CRDTViewCountService crdtViewCountService;
+
+
+
+        @GetMapping("/{id}/views-crdt")
+        public ResponseEntity<Map<String, Long>> getTotalViewsCRDT(@PathVariable Long id) {
+        long total = crdtViewCountService.getTotalViewCount(id);
+        return ResponseEntity.ok(Map.of("totalViews", total));
+    }
+
+    @PostMapping("/{id}/view-crdt")
+    public ResponseEntity<String> incrementViewCountCRDT(@PathVariable Long id) {
+        crdtViewCountService.incrementViewCount(id);
+        return ResponseEntity.ok("View count incremented on " + System.getenv("REPLICA_ID"));
+    }
+    }

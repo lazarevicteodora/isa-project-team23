@@ -84,7 +84,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/health").permitAll()
 
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/view").permitAll()
-
+                .requestMatchers("/api/videos/*/view-crdt").permitAll()
+                .requestMatchers("/api/videos/*/views-crdt").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/comments").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/likes").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()
