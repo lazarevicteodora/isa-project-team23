@@ -111,13 +111,8 @@ public class VideoResponseDTO {
         this.authorId = authorId;
     }
 
-    public Long getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(Long viewCount) {
-        this.viewCount = viewCount;
-    }
+    public Long getViewCount() { return viewCount; }
+    public void setViewCount(Long viewCount) { this.viewCount = viewCount; }
 
     public Double getLatitude() {
         return latitude;
