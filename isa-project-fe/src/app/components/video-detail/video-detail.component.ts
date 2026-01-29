@@ -70,12 +70,6 @@ export class VideoDetailComponent implements OnInit {
     }
   }
 
-  incrementViewAndLoadVideo(id: number): void {
-    this.videoService.incrementViewCount(id).subscribe({
-      next: () => this.loadVideo(id),
-      error: () => this.loadVideo(id)
-    });
-  }
 
   loadVideo(id: number): void {
     this.videoService.getVideoById(id).subscribe({
@@ -267,4 +261,38 @@ export class VideoDetailComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/landing']);
   }
+
+  incrementViewAndLoadVideo(id: number): void {
+  this.videoService.incrementViewCRDT(id).subscribe({
+    next: () => this.loadVideoWithCRDTViews(id),
+    error: () => this.loadVideoWithCRDTViews(id)
+  });
+}
+
+loadVideoWithCRDTViews(id: number): void {
+  this.videoService.getVideoById(id).subscribe({
+    next: (video) => {
+      this.video = video;
+
+      if (this.video.tags && typeof this.video.tags === 'string') {
+        try { this.video.tags = JSON.parse(this.video.tags as string); } 
+        catch (e) { this.video.tags = []; }
+      }
+
+      this.likeCount = video.likeCount || 0;
+
+      this.videoService.getTotalViewsCRDT(id).subscribe({
+        next: (res) => this.video!.viewCount = res.totalViews,
+        error: () => this.video!.viewCount = video.viewCount || 0
+      });
+
+      this.loading = false;
+    },
+    error: () => {
+      this.errorMessage = 'Video nije pronađen';
+      this.loading = false;
+    }
+  });
+}
+
 }

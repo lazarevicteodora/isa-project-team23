@@ -78,6 +78,8 @@ public class VideoController {
 
             response.setLikeCount(likeService.getLikeCount(id));
             response.setCommentCount(commentService.getCommentCount(id));
+            response.setViewCount(crdtViewCountService.getTotalViewCount(id));
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -93,6 +95,8 @@ public class VideoController {
                     VideoResponseDTO dto = new VideoResponseDTO(video);
                     dto.setLikeCount(likeService.getLikeCount(video.getId()));
                     dto.setCommentCount(commentService.getCommentCount(video.getId()));
+                    dto.setViewCount(crdtViewCountService.getTotalViewCount(video.getId()));
+
                     return dto;
                 })
                 .collect(Collectors.toList());

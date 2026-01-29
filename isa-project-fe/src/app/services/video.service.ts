@@ -88,4 +88,15 @@ export class VideoService {
   getLikeStatus(videoId: number): Observable<{ liked: boolean }> {
     return this.http.get<{ liked: boolean }>(`${this.apiUrl}/${videoId}/likes/status`);
   }
+  
+  // Dohvatanje ukupnog broja pregleda preko CRDT-a
+getTotalViewsCRDT(videoId: number): Observable<{ totalViews: number }> {
+  return this.http.get<{ totalViews: number }>(`${this.apiUrl}/${videoId}/views-crdt`);
+}
+
+// Inkrementiranje CRDT brojača pregleda
+incrementViewCRDT(videoId: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/${videoId}/view-crdt`, {});
+}
+
 }
