@@ -20,8 +20,14 @@ public class CRDTViewCountService {
     @Autowired
     private ViewCountReplica2Repository replica2Repository;
 
+    @Autowired
+    private ReplicaSyncService syncService;
+
     @Value("${crdt.replica.id}")
     private String replicaId;
+
+    @Value("${crdt.sync.push-enabled:true}")
+    private boolean pushEnabled;
 
     /**
      * Inkrementuje view count NA LOKALNOJ REPLICI sa pesimističkim lock-om
@@ -40,6 +46,12 @@ public class CRDTViewCountService {
 
             viewCount.increment();
             ViewCountReplica1 savedEntity = replica1Repository.save(viewCount);
+
+            //Push update drugim replikama (asinhrono)
+            if (pushEnabled) {
+                syncService.pushUpdateToOtherReplicas(videoId);
+            }
+
         } else if ("replica-2".equals(replicaId)) {
             System.out.println("✅ REPLICA-2 branch entered!");
 
@@ -53,14 +65,25 @@ public class CRDTViewCountService {
             viewCount.increment();
 
             ViewCountReplica2 savedEntity = replica2Repository.save(viewCount);
+
+            //Push update drugim replikama (asinhrono)
+            if (pushEnabled) {
+                syncService.pushUpdateToOtherReplicas(videoId);
+            }
+
         } else {
             System.out.println("❌ UNKNOWN REPLICA ID: " + replicaId);
         }
 
     }
-    /**Vraća UKUPAN broj pregleda koristeći G-Counter MERGE*/
+    /**Vraća UKUPAN broj pregleda koristeći G-Counter MERGE
+     *Prije vraćanja vrednosti, prvo izvršava PULL sinhronizaciju
+     *sa drugim replikama da bi obezbjedio najnovije podatke
+     */
     @Transactional(readOnly = true)
     public long getTotalViewCount(Long videoId) {
+
+        syncService.pullAndMergeFromOtherReplicas(videoId);
 
         // Pročitaj iz obe tabele
         Long count1 = replica1Repository.findByVideoId(videoId)
@@ -83,4 +106,30 @@ public class CRDTViewCountService {
 
         return merged.getValue();
     }
+
+    /**
+     * Vraća ukupan broj pregleda BEZ sinhronizacije.
+     * Koristi se kada nam treba brz pristup bez garancije svežih podataka.
+     */
+    @Transactional(readOnly = true)
+    public long getTotalViewCountNoSync(Long videoId) {
+        Long count1 = replica1Repository.findByVideoId(videoId)
+                .map(ViewCountReplica1::getCount)
+                .orElse(0L);
+
+        Long count2 = replica2Repository.findByVideoId(videoId)
+                .map(ViewCountReplica2::getCount)
+                .orElse(0L);
+
+        GCounter counter1 = new GCounter();
+        counter1.increment("replica-1", count1);
+
+        GCounter counter2 = new GCounter();
+        counter2.increment("replica-2", count2);
+
+        GCounter merged = counter1.merge(counter2);
+
+        return merged.getValue();
+    }
+
 }
