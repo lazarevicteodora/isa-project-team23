@@ -1,28 +1,6 @@
-#version: '3.8'
+version: '3.8'
 
 services:
-  # PostgreSQL Database - JEDNA za obe replike
-  postgres:
-    image: postgres:15-alpine
-    container_name: jutjubic-postgres
-    environment:
-      POSTGRES_DB: isa_project_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      # Inicijalizacioni SQL (opciono)
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - jutjubic-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d isa_project_db"]
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   # Backend Replica 1
   backend1:
     build:
@@ -30,46 +8,32 @@ services:
       dockerfile: Dockerfile
     container_name: jutjubic-backend1
     environment:
-      # Replica identifikacija
       REPLICA_ID: replica-1
       SERVER_PORT: 8080
-
-      #REPLIKA ZA CRDT SINHRONIZACIJU
       REPLICA_URLS: http://backend2:8080
       CRDT_PUSH_ENABLED: "true"
       CRDT_PERIODIC_ENABLED: "true"
 
-      # Database connection
-      DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
+      #  Spoj se na HOST bazu (localhost iz perspektive tvog računara)
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/isa_project_db
       DB_USERNAME: postgres
       DB_PASSWORD: root
 
-      # Spring profiles
       SPRING_PROFILES_ACTIVE: production
 
-      # JVM options
       JAVA_OPTS: >
         -Xms512m
         -Xmx1024m
         -XX:+UseG1GC
         -XX:MaxGCPauseMillis=200
     ports:
-      - "8081:8080"  # Za direktan pristup (testing)
+      - "8081:8080"
     volumes:
-      - ./storage:/app/storage  # Shared storage za video fajlove
-      - ./cache:/app/cache      # Shared cache
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - ./storage:/app/storage
+      - ./cache:/app/cache
     networks:
       - jutjubic-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   # Backend Replica 2
   backend2:
@@ -78,53 +42,40 @@ services:
       dockerfile: Dockerfile
     container_name: jutjubic-backend2
     environment:
-      # Replica identifikacija
       REPLICA_ID: replica-2
       SERVER_PORT: 8080
-
       REPLICA_URLS: http://backend1:8080
       CRDT_PUSH_ENABLED: "true"
       CRDT_PERIODIC_ENABLED: "true"
 
-      # Database connection (ISTA kao replica 1!)
-      DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
+      # ✅ Ista baza kao replica 1!
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/isa_project_db
       DB_USERNAME: postgres
       DB_PASSWORD: root
 
-      # Spring profiles
       SPRING_PROFILES_ACTIVE: production
 
-      # JVM options
       JAVA_OPTS: >
         -Xms512m
         -Xmx1024m
         -XX:+UseG1GC
         -XX:MaxGCPauseMillis=200
     ports:
-      - "8082:8080"  # Za direktan pristup (testing)
+      - "8082:8080"
     volumes:
-      - ./storage:/app/storage  # Shared storage za video fajlove
-      - ./cache:/app/cache      # Shared cache
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - ./storage:/app/storage
+      - ./cache:/app/cache
     networks:
       - jutjubic-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   # Nginx Load Balancer
   nginx:
     image: nginx:alpine
     container_name: jutjubic-nginx
     ports:
-      - "80:80"      # HTTP
-      - "443:443"    # HTTPS (za budućnost)
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -133,16 +84,8 @@ services:
     networks:
       - jutjubic-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/nginx-health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
 networks:
   jutjubic-network:
     driver: bridge
 
-volumes:
-  postgres_data:
-    driver: local
