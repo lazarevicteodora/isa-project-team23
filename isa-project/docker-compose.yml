@@ -1,7 +1,15 @@
-#version: '3.8'
+# ============================================================================
+# REFAKTORISAN DOCKER COMPOSE - Podržava proizvoljan broj replika!
+# ============================================================================
+# Ova konfiguracija ima 3 replike kao primer, ali možeš dodavati koliko god želiš.
+# Da dodaš novu repliku:
+# 1. Kopiraj jedan od backend servisa (npr. backend1)
+# 2. Promeni: container_name, REPLICA_ID, REPLICA_URLS, i port mapping
+# 3. Dodaj novi server u nginx.conf
+# ============================================================================
 
 services:
-  # PostgreSQL Database - JEDNA za obe replike
+  # PostgreSQL Database - JEDNA za sve replike
   postgres:
     image: postgres:15-alpine
     container_name: jutjubic-postgres
@@ -14,7 +22,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Inicijalizacioni SQL (opciono)
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./migration.sql:/docker-entrypoint-initdb.d/01-migration.sql
     networks:
       - jutjubic-network
     healthcheck:
@@ -34,8 +42,9 @@ services:
       REPLICA_ID: replica-1
       SERVER_PORT: 8080
 
-      #REPLIKA ZA CRDT SINHRONIZACIJU
-      REPLICA_URLS: http://backend2:8080
+      # REPLIKA ZA CRDT SINHRONIZACIJU - Lista URL-ova OSTALIH replika
+      # Dodaj nove replike ovde odvojene zarezom
+      REPLICA_URLS: http://backend2:8080,http://backend3:8080
       CRDT_PUSH_ENABLED: "true"
       CRDT_PERIODIC_ENABLED: "true"
 
@@ -82,7 +91,8 @@ services:
       REPLICA_ID: replica-2
       SERVER_PORT: 8080
 
-      REPLICA_URLS: http://backend1:8080
+      # REPLIKA ZA CRDT SINHRONIZACIJU
+      REPLICA_URLS: http://backend1:8080,http://backend3:8080
       CRDT_PUSH_ENABLED: "true"
       CRDT_PERIODIC_ENABLED: "true"
 
@@ -118,6 +128,54 @@ services:
       retries: 3
       start_period: 60s
 
+  # Backend Replica 3 - NOVA REPLIKA! 🎉
+  backend3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jutjubic-backend3
+    environment:
+      # Replica identifikacija
+      REPLICA_ID: replica-3
+      SERVER_PORT: 8080
+
+      # REPLIKA ZA CRDT SINHRONIZACIJU
+      REPLICA_URLS: http://backend1:8080,http://backend2:8080
+      CRDT_PUSH_ENABLED: "true"
+      CRDT_PERIODIC_ENABLED: "true"
+
+      # Database connection (ISTA kao ostale replike!)
+      DB_URL: jdbc:postgresql://postgres:5432/isa_project_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+
+      # Spring profiles
+      SPRING_PROFILES_ACTIVE: production
+
+      # JVM options
+      JAVA_OPTS: >
+        -Xms512m
+        -Xmx1024m
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=200
+    ports:
+      - "8083:8080"  # Za direktan pristup (testing)
+    volumes:
+      - ./storage:/app/storage  # Shared storage za video fajlove
+      - ./cache:/app/cache      # Shared cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jutjubic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
   # Nginx Load Balancer
   nginx:
     image: nginx:alpine
@@ -130,6 +188,7 @@ services:
     depends_on:
       - backend1
       - backend2
+      - backend3
     networks:
       - jutjubic-network
     restart: unless-stopped
@@ -146,3 +205,18 @@ networks:
 volumes:
   postgres_data:
     driver: local
+
+# ============================================================================
+# KAKO DODATI NOVU REPLIKU (npr. replica-4):
+# ============================================================================
+# 1. Kopiraj jedan od backend servisa (npr. backend3)
+# 2. Promeni:
+#    - container_name: jutjubic-backend4
+#    - REPLICA_ID: replica-4
+#    - REPLICA_URLS: http://backend1:8080,http://backend2:8080,http://backend3:8080
+#    - ports: "8084:8080"
+# 3. Dodaj backend4 u nginx depends_on sekciju
+# 4. Dodaj backend4 u nginx.conf upstream sekciju
+# 5. Ažuriraj REPLICA_URLS u SVIM ostalim replikama da uključuju backend4
+# 6. Pokreni: docker-compose up -d --build
+# ============================================================================

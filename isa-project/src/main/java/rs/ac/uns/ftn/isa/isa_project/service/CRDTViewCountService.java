@@ -1,27 +1,34 @@
 package rs.ac.uns.ftn.isa.isa_project.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import rs.ac.uns.ftn.isa.isa_project.crdt.GCounter;
-import rs.ac.uns.ftn.isa.isa_project.model.ViewCountReplica1;
-import rs.ac.uns.ftn.isa.isa_project.model.ViewCountReplica2;
-import rs.ac.uns.ftn.isa.isa_project.repository.ViewCountReplica1Repository;
-import rs.ac.uns.ftn.isa.isa_project.repository.ViewCountReplica2Repository;
+import rs.ac.uns.ftn.isa.isa_project.model.ViewCountReplica;
+import rs.ac.uns.ftn.isa.isa_project.repository.ViewCountReplicaRepository;
 
+import java.util.List;
+
+/**
+ * Servis za upravljanje view count-ovima koristeći CRDT.
+ * Podržava proizvoljan broj replika sa odvojenim tabelama.
+ */
 @Service
 public class CRDTViewCountService {
 
-    @Autowired
-    private ViewCountReplica1Repository replica1Repository;
+    private static final Logger LOG = LoggerFactory.getLogger(CRDTViewCountService.class);
 
     @Autowired
-    private ViewCountReplica2Repository replica2Repository;
+    private ViewCountReplicaRepository replicaDAO;
 
     @Autowired
     private ReplicaSyncService syncService;
+
+    @Autowired
+    private ReplicaService replicaRegistry;
 
     @Value("${crdt.replica.id}")
     private String replicaId;
@@ -30,106 +37,108 @@ public class CRDTViewCountService {
     private boolean pushEnabled;
 
     /**
-     * Inkrementuje view count NA LOKALNOJ REPLICI sa pesimističkim lock-om
+     * Inkrementuje view count NA LOKALNOJ REPLICI.
      */
     @Transactional
     public void incrementViewCount(Long videoId) {
-        if ("replica-1".equals(replicaId)) {
-            System.out.println("✅ REPLICA-1 branch entered!");
+        LOG.info("[{}] Incrementing view count for video {}", replicaId, videoId);
 
-            ViewCountReplica1 viewCount = replica1Repository.findByVideoIdForUpdate(videoId)
-                    .orElseGet(() -> {
-                        ViewCountReplica1 newVC = new ViewCountReplica1(videoId);
-                        ViewCountReplica1 saved = replica1Repository.save(newVC);
-                        return saved;
-                    });
+        replicaRegistry.ensureTableExists(replicaId);
 
-            viewCount.increment();
-            ViewCountReplica1 savedEntity = replica1Repository.save(viewCount);
+        ViewCountReplica viewCount = replicaDAO
+                .findByVideoIdForUpdate(videoId, replicaId)
+                .orElseGet(() -> {
+                    LOG.info("[{}] Creating new ViewCount entry for video {}", replicaId, videoId);
+                    return replicaDAO.create(videoId, replicaId);
+                });
 
-            //Push update drugim replikama (asinhrono)
-            if (pushEnabled) {
+        long newCount = viewCount.getCount() + 1;
+        replicaDAO.update(videoId, newCount, replicaId);
+
+        LOG.info("[{}] View count incremented to {} for video {}",
+                replicaId, newCount, videoId);
+
+        if (pushEnabled) {
+            try {
                 syncService.pushUpdateToOtherReplicas(videoId);
+            } catch (Exception e) {
+                LOG.warn("[{}] Failed to push update to other replicas: {}",
+                        replicaId, e.getMessage());
             }
-
-        } else if ("replica-2".equals(replicaId)) {
-            System.out.println("✅ REPLICA-2 branch entered!");
-
-            ViewCountReplica2 viewCount = replica2Repository.findByVideoIdForUpdate(videoId)
-                    .orElseGet(() -> {
-                        ViewCountReplica2 newVC = new ViewCountReplica2(videoId);
-                        ViewCountReplica2 saved = replica2Repository.save(newVC);
-                        return saved;
-                    });
-
-            viewCount.increment();
-
-            ViewCountReplica2 savedEntity = replica2Repository.save(viewCount);
-
-            //Push update drugim replikama (asinhrono)
-            if (pushEnabled) {
-                syncService.pushUpdateToOtherReplicas(videoId);
-            }
-
-        } else {
-            System.out.println("❌ UNKNOWN REPLICA ID: " + replicaId);
         }
-
     }
-    /**Vraća UKUPAN broj pregleda koristeći G-Counter MERGE
-     *Prije vraćanja vrednosti, prvo izvršava PULL sinhronizaciju
-     *sa drugim replikama da bi obezbjedio najnovije podatke
+
+    /**
+     * Vraća UKUPAN broj pregleda koristeći G-Counter MERGE.
      */
     @Transactional(readOnly = true)
     public long getTotalViewCount(Long videoId) {
+        LOG.debug("[{}] Getting total view count for video {} (with sync)", replicaId, videoId);
 
-        syncService.pullAndMergeFromOtherReplicas(videoId);
+        try {
+            syncService.pullAndMergeFromOtherReplicas(videoId);
+        } catch (Exception e) {
+            LOG.warn("[{}] Pull sync failed, using local data: {}", replicaId, e.getMessage());
+        }
 
-        // Pročitaj iz obe tabele
-        Long count1 = replica1Repository.findByVideoId(videoId)
-                .map(ViewCountReplica1::getCount)
-                .orElse(0L);
+        List<String> allReplicaIds = replicaRegistry.getAllReplicaIds();
+        List<ViewCountReplica> allViewCounts = replicaDAO.findAllByVideoId(videoId, allReplicaIds);
 
-        Long count2 = replica2Repository.findByVideoId(videoId)
-                .map(ViewCountReplica2::getCount)
-                .orElse(0L);
+        if (allViewCounts.isEmpty()) {
+            LOG.debug("[{}] No view counts found for video {}", replicaId, videoId);
+            return 0L;
+        }
 
-        // Kreiraj G-Counter za svaku repliku
-        GCounter counter1 = new GCounter();
-        counter1.increment("replica-1", count1);
+        GCounter merged = new GCounter();
+        for (ViewCountReplica vc : allViewCounts) {
+            merged.increment(vc.getReplicaId(), vc.getCount());
+        }
 
-        GCounter counter2 = new GCounter();
-        counter2.increment("replica-2", count2);
+        long totalCount = merged.getValue();
+        LOG.debug("[{}] Total view count for video {}: {} (from {} replicas)",
+                replicaId, videoId, totalCount, allViewCounts.size());
 
-        // MERGE - ključni deo CRDT-a!
-        GCounter merged = counter1.merge(counter2);
-
-        return merged.getValue();
+        return totalCount;
     }
 
     /**
      * Vraća ukupan broj pregleda BEZ sinhronizacije.
-     * Koristi se kada nam treba brz pristup bez garancije svežih podataka.
      */
     @Transactional(readOnly = true)
     public long getTotalViewCountNoSync(Long videoId) {
-        Long count1 = replica1Repository.findByVideoId(videoId)
-                .map(ViewCountReplica1::getCount)
-                .orElse(0L);
+        LOG.debug("[{}] Getting total view count for video {} (no sync)", replicaId, videoId);
 
-        Long count2 = replica2Repository.findByVideoId(videoId)
-                .map(ViewCountReplica2::getCount)
-                .orElse(0L);
+        List<String> allReplicaIds = replicaRegistry.getAllReplicaIds();
+        List<ViewCountReplica> allViewCounts = replicaDAO.findAllByVideoId(videoId, allReplicaIds);
 
-        GCounter counter1 = new GCounter();
-        counter1.increment("replica-1", count1);
+        if (allViewCounts.isEmpty()) {
+            return 0L;
+        }
 
-        GCounter counter2 = new GCounter();
-        counter2.increment("replica-2", count2);
-
-        GCounter merged = counter1.merge(counter2);
+        GCounter merged = new GCounter();
+        for (ViewCountReplica vc : allViewCounts) {
+            merged.increment(vc.getReplicaId(), vc.getCount());
+        }
 
         return merged.getValue();
     }
 
+    @Transactional(readOnly = true)
+    public long getLocalViewCount(Long videoId) {
+        return replicaDAO
+                .findByVideoId(videoId, replicaId)
+                .map(ViewCountReplica::getCount)
+                .orElse(0L);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ViewCountReplica> getAllReplicaViewCounts(Long videoId) {
+        List<String> allReplicaIds = replicaRegistry.getAllReplicaIds();
+        return replicaDAO.findAllByVideoId(videoId, allReplicaIds);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getActiveReplicaIds() {
+        return replicaRegistry.getAllReplicaIds();
+    }
 }
