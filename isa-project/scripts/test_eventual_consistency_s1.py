@@ -4,7 +4,7 @@ import time
 # URLs
 REPLICA_1_URL = "http://localhost:8081"
 REPLICA_2_URL = "http://localhost:8082"
-VIDEO_ID = 29
+VIDEO_ID = 1
 
 def header(title):
     print("\n" + "=" * 80)
