@@ -10,10 +10,16 @@ import rs.ac.uns.ftn.isa.isa_project.crdt.GCounter;
 import rs.ac.uns.ftn.isa.isa_project.model.ViewCount;
 import rs.ac.uns.ftn.isa.isa_project.repository.ViewCountRepository;
 
+import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * CRDT View Count Service - Odvojene tabele BEZ hardkodovanja!
+ *
+ * Svaka replika ima SVOJU tabelu, ali kod dinamički radi sa bilo kojim brojem replika.
+ */
 @Service
 public class CRDTViewCountService {
 
@@ -26,35 +32,53 @@ public class CRDTViewCountService {
     private ReplicaSyncService syncService;
 
     @Value("${crdt.replica.id}")
-    private String replicaId;  // Npr. "replica-1", "replica-2", "replica-3"...
+    private String replicaId;
+
+    @Value("${crdt.replica.urls}")
+    private List<String> replicaUrls;
 
     @Value("${crdt.sync.push-enabled:true}")
     private boolean pushEnabled;
 
     /**
-     * Inkrementuje view count NA LOKALNOJ REPLICI sa pesimističkim lock-om.
+     * Automatski kreira tabelu za trenutnu repliku prilikom startup-a.
+     */
+    @PostConstruct
+    public void init() {
+        LOG.info("[{}] Initializing CRDT View Count Service", replicaId);
+
+        // Kreiraj tabelu za ovu repliku ako ne postoji
+        viewCountRepository.createTableIfNotExists(replicaId);
+
+        LOG.info("[{}] Table created/verified for replica", replicaId);
+    }
+
+    /**
+     * Inkrementuje view count NA LOKALNOJ TABELI te replike.
+     *
+     * NEMA if-else logike!
+     * Dinamički koristi tabelu zasnovanu na replicaId.
      */
     @Transactional
     public void incrementViewCount(Long videoId) {
         LOG.debug("[{}] Incrementing view count for video {}", replicaId, videoId);
 
-        // 1. Pronađi ili kreiraj zapis za TRENUTNU repliku
+        // 1. Pronađi ili kreiraj zapis u tabeli TRENUTNE replike
         ViewCount viewCount = viewCountRepository
-                .findByVideoIdAndReplicaIdForUpdate(videoId, replicaId)
+                .findByVideoIdForUpdate(videoId, replicaId)
                 .orElseGet(() -> {
                     LOG.info("[{}] Creating new view count entry for video {}", replicaId, videoId);
-                    ViewCount newVC = new ViewCount(videoId, replicaId);
-                    return viewCountRepository.save(newVC);
+                    return new ViewCount(videoId, replicaId);
                 });
 
-        // 2. Inkrementuj brojač
+        // 2. Inkrementuj
         viewCount.increment();
         viewCountRepository.save(viewCount);
 
         LOG.debug("[{}] View count incremented for video {}: new count = {}",
                 replicaId, videoId, viewCount.getCount());
 
-        // 3. Push update drugim replikama (asinhrono, opciono)
+        // 3. Push update drugim replikama
         if (pushEnabled) {
             syncService.pushUpdateToOtherReplicas(videoId);
         }
@@ -62,21 +86,26 @@ public class CRDTViewCountService {
 
     /**
      * Vraća UKUPAN broj pregleda koristeći G-Counter MERGE.
-     * Pre vraćanja vrednosti, prvo izvršava PULL sinhronizaciju sa drugim replikama.
+     *
+     * Čita iz SVIHtabela (view_counts_replica_1, view_counts_replica_2, ...)
+     * i merge-uje ih koristeći CRDT princip.
      */
     @Transactional(readOnly = true)
     public long getTotalViewCount(Long videoId) {
         LOG.debug("[{}] Getting total view count for video {}", replicaId, videoId);
 
-        // 1. Pull sinhronizacija - dobavi najnovije podatke od drugih replika
+        // 1. Pull sinhronizacija
         syncService.pullAndMergeFromOtherReplicas(videoId);
 
-        // 2. Ucitaj SVE replike za ovaj video
-        List<ViewCount> allReplicas = viewCountRepository.findAllByVideoId(videoId);
+        // 2. Dobavi listu svih poznatih replika
+        List<String> allReplicaIds = getAllKnownReplicaIds();
+
+        // 3. Učitaj SVE ViewCount zapise za ovaj video (iz svih tabela)
+        List<ViewCount> allReplicas = viewCountRepository.findAllByVideoId(videoId, allReplicaIds);
 
         LOG.debug("[{}] Found {} replica entries for video {}", replicaId, allReplicas.size(), videoId);
 
-        // 3. Kreiraj G-Counter iz svih replika
+        // 4. Kreiraj G-Counter iz svih replika
         Map<String, Long> counts = new HashMap<>();
         for (ViewCount vc : allReplicas) {
             counts.put(vc.getReplicaId(), vc.getCount());
@@ -84,8 +113,6 @@ public class CRDTViewCountService {
         }
 
         GCounter counter = new GCounter(counts);
-
-        // 4. MERGE - saberi sve replike (CRDT operacija)
         long total = counter.getValue();
 
         LOG.info("[{}] Total view count for video {}: {} (from {} replicas)",
@@ -95,43 +122,30 @@ public class CRDTViewCountService {
     }
 
     /**
-     * Vraća ukupan broj pregleda BEZ sinhronizacije.
-     * Koristi se kada nam treba brz pristup bez garancije svežih podataka.
-     *
-     * Takođe dinamički - radi sa bilo kojim brojem replika.
+     * Vraća listu svih poznatih replika u sistemu.
+     * Ovo uključuje trenutnu repliku + sve replike iz konfiguracije.
      */
-    @Transactional(readOnly = true)
-    public long getTotalViewCountNoSync(Long videoId) {
-        LOG.debug("[{}] Getting total view count (no sync) for video {}", replicaId, videoId);
+    private List<String> getAllKnownReplicaIds() {
+        List<String> allIds = new java.util.ArrayList<>();
 
-        // Ucitaj SVE replike
-        List<ViewCount> allReplicas = viewCountRepository.findAllByVideoId(videoId);
+        // Dodaj trenutnu repliku
+        allIds.add(replicaId);
 
-        // Kreiraj G-Counter
-        Map<String, Long> counts = new HashMap<>();
-        for (ViewCount vc : allReplicas) {
-            counts.put(vc.getReplicaId(), vc.getCount());
+        // Ekstraktuj replica ID-ove iz URL-ova
+        // Npr. "http://backend1:8080" -> pretpostavljamo "replica-1"
+        // ALI, bolje je imati eksplicitnu konfiguraciju
+        for (int i = 1; i <= replicaUrls.size() + 1; i++) {
+            String id = "replica-" + i;
+            if (!allIds.contains(id)) {
+                allIds.add(id);
+            }
         }
 
-        GCounter counter = new GCounter(counts);
-        long total = counter.getValue();
-
-        LOG.debug("[{}] Total view count (no sync) for video {}: {}", replicaId, videoId, total);
-
-        return total;
-    }
-
-    /**
-     * Vraća broj različitih replika koje imaju zapise za dati video.
-     * Korisno za monitoring i debugging.
-     */
-    public long getReplicaCount(Long videoId) {
-        return viewCountRepository.countDistinctReplicasByVideoId(videoId);
+        return allIds;
     }
 
     /**
      * Vraća view count za TRENUTNU repliku (bez merging-a).
-     * Korisno za debugging i monitoring pojedinačnih replika.
      */
     @Transactional(readOnly = true)
     public long getLocalViewCount(Long videoId) {

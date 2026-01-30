@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Implementira PUSH i PULL strategije sinhronizacije:
- * 1. PUSH: Nakon svake izmene, salje update drugim replikama (opciono)
- * 2. PULL: Periodicno trazi izmene od drugih replika
- * 3. SYNC ON READ: Kada klijent trazi podatke, prvo sinhronizuje stanje
- */
 @Service
 public class ReplicaSyncService {
 
@@ -42,26 +33,21 @@ public class ReplicaSyncService {
     private String replicaId;
 
     @Value("${crdt.replica.urls}")
-    private List<String> replicaUrls; // Lista URL-ova drugih replika
+    private List<String> replicaUrls;
 
     /**
-     * ASINHRONO Salje trenutno stanje G-Counter-a za dati video svim drugim replikama.
-     * Ova metoda se poziva NAKON SVAKE MODIFIKACIJE (push-based sync).
-     *
-     * @param videoId ID videa
+     * PUSH sync - šalje update drugim replikama.
      */
     @Async
     public void pushUpdateToOtherReplicas(Long videoId) {
         LOG.info("[{}] Pushing update for video {} to other replicas", replicaId, videoId);
 
         try {
-            // 1. Procitaj trenutno lokalno stanje
+            // Čitaj SAMO iz tabele trenutne replike
             Map<String, Long> currentCounts = getCurrentLocalCounts(videoId);
 
-            // 2. Kreiraj sync request
             CRDTSyncRequest syncRequest = new CRDTSyncRequest(videoId, replicaId, currentCounts);
 
-            // 3. Posalji svim drugim replikama
             int successCount = 0;
             for (String replicaUrl : replicaUrls) {
                 if (!replicaUrl.isEmpty()) {
@@ -83,20 +69,15 @@ public class ReplicaSyncService {
     }
 
     /**
-     * SINHRONO trazi stanje od svih drugih replika i vrsi MERGE (pull-based sync).
-     * Ova metoda se poziva PRE CITANJA PODATAKA ili PERIODICNO.
-     *
-     * @param videoId ID videa
+     * PULL sync - traži stanje od drugih replika i merge-uje.
      */
     @Transactional
     public void pullAndMergeFromOtherReplicas(Long videoId) {
         LOG.debug("[{}] Pulling updates for video {} from other replicas", replicaId, videoId);
 
         try {
-            // 1. Ucitaj lokalni G-Counter
             GCounter localCounter = getLocalGCounter(videoId);
 
-            // 2. Trazi stanje od svih drugih replika i merge-uj
             int successCount = 0;
             for (String replicaUrl : replicaUrls) {
                 if (!replicaUrl.isEmpty()) {
@@ -110,8 +91,8 @@ public class ReplicaSyncService {
                 }
             }
 
-            // 3. Primeni merged stanje na lokalnu bazu
-            applyMergedCounts(videoId, localCounter);
+            // Primeni merged stanje SAMO na lokalnu tabelu
+            applyMergedCountsToLocalTable(videoId, localCounter);
 
             LOG.debug("[{}] Successfully pulled and merged updates for video {} from {}/{} replicas",
                     replicaId, videoId, successCount, replicaUrls.size());
@@ -122,28 +103,21 @@ public class ReplicaSyncService {
     }
 
     /**
-     * Vraca trenutno lokalno stanje kao Map<replicaId, count>.
-     * Javna metoda koju koristi kontroler.
+     * Vraća trenutno stanje SAMO LOKALNE tabele.
      */
     public Map<String, Long> getCurrentLocalCounts(Long videoId) {
         Map<String, Long> counts = new HashMap<>();
 
-        // Ucitaj SVE replike za ovaj video
-        List<ViewCount> allReplicas = viewCountRepository.findAllByVideoId(videoId);
-
-        // Popuni mapu
-        for (ViewCount vc : allReplicas) {
-            counts.put(vc.getReplicaId(), vc.getCount());
-        }
-
-        LOG.trace("[{}] Current local counts for video {}: {}", replicaId, videoId, counts);
+        // Čitaj SAMO iz tabele trenutne replike
+        viewCountRepository
+                .findByVideoIdAndReplicaId(videoId, replicaId)
+                .ifPresent(vc -> counts.put(replicaId, vc.getCount()));
 
         return counts;
     }
 
     /**
-     * Vraca lokalni G-Counter za dati video.
-     * Dinamički - radi sa bilo kojim brojem replika.
+     * Kreira G-Counter iz lokalne tabele.
      */
     private GCounter getLocalGCounter(Long videoId) {
         Map<String, Long> counts = getCurrentLocalCounts(videoId);
@@ -151,33 +125,25 @@ public class ReplicaSyncService {
     }
 
     /**
-     * Salje HTTP POST zahtev na drugu repliku sa sync request-om.
+     * Šalje HTTP POST zahtev drugoj replici.
      */
     private void sendSyncRequest(String replicaUrl, CRDTSyncRequest syncRequest) {
-        try {
-            String url = replicaUrl + "/api/crdt/sync";
+        String url = replicaUrl + "/api/crdt/sync";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<CRDTSyncRequest> entity = new HttpEntity<>(syncRequest, headers);
+        HttpEntity<CRDTSyncRequest> entity = new HttpEntity<>(syncRequest, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                LOG.trace("[{}] Successfully sent sync request to {}", replicaId, replicaUrl);
-            } else {
-                LOG.warn("[{}] Failed to send sync request to {}: {}", replicaId, replicaUrl, response.getStatusCode());
-            }
-
-        } catch (Exception e) {
-            LOG.error("[{}] Error sending sync request to {}: {}", replicaId, replicaUrl, e.getMessage());
-            throw e; // Rethrow za praćenje grešaka
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to send sync request: " + response.getStatusCode());
         }
     }
 
     /**
-     * Trazi G-Counter stanje od udaljene replike.
+     * Traži G-Counter stanje od udaljene replike.
      */
     private GCounter fetchRemoteGCounter(String replicaUrl, Long videoId) {
         try {
@@ -189,58 +155,45 @@ public class ReplicaSyncService {
                 CRDTSyncRequest remoteState = response.getBody();
                 return new GCounter(remoteState.getCounts());
             } else {
-                LOG.warn("[{}] Failed to fetch state from {}: {}", replicaId, replicaUrl, response.getStatusCode());
-                return new GCounter(); // Prazan counter
+                return new GCounter();
             }
 
         } catch (Exception e) {
             LOG.error("[{}] Error fetching state from {}: {}", replicaId, replicaUrl, e.getMessage());
-            return new GCounter(); // Prazan counter
+            return new GCounter();
         }
     }
 
     /**
-     * Primenjuje merged G-Counter stanje na lokalnu bazu.
-     * Koristi MAX vrednost izmedju lokalnog i merged stanja (CRDT svojstvo).
-     * Iterira kroz SVE replike u merged counter-u!
+     * Primenjuje merged counts SAMO na lokalnu tabelu trenutne replike.
+     *
+     * KLJUČNA RAZLIKA: Ne diramo tabele drugih replika!
+     * Svaka replika upravlja samo svojom tabelom.
      */
     @Transactional
-    public void applyMergedCounts(Long videoId, GCounter mergedCounter) {
-        LOG.debug("[{}] Applying merged counts for video {}", replicaId, videoId);
+    public void applyMergedCountsToLocalTable(Long videoId, GCounter mergedCounter) {
+        LOG.debug("[{}] Applying merged counts for video {} to local table", replicaId, videoId);
 
-        // Iteracija kroz SVE replike u merged counter-u
-        Map<String, Long> mergedCounts = mergedCounter.getCounts();
+        // Uzmi merged vrednost za TRENUTNU repliku
+        Long mergedCount = mergedCounter.getReplicaCount(replicaId);
 
-        int updatedCount = 0;
-        for (Map.Entry<String, Long> entry : mergedCounts.entrySet()) {
-            String currentReplicaId = entry.getKey();
-            Long mergedCount = entry.getValue();
+        // Update SAMO lokalnu tabelu
+        ViewCount localViewCount = viewCountRepository
+                .findByVideoIdAndReplicaId(videoId, replicaId)
+                .orElse(new ViewCount(videoId, replicaId));
 
-            // Pronadji ili kreiraj zapis za ovu repliku
-            ViewCount viewCount = viewCountRepository
-                    .findByVideoIdAndReplicaId(videoId, currentReplicaId)
-                    .orElse(new ViewCount(videoId, currentReplicaId));
+        // MAX operacija (CRDT svojstvo)
+        if (mergedCount > localViewCount.getCount()) {
+            localViewCount.setCount(mergedCount);
+            viewCountRepository.save(localViewCount);
 
-            // Update SAMO ako je merged vrednost veća (CRDT MAX operacija)
-            if (mergedCount > viewCount.getCount()) {
-                viewCount.setCount(mergedCount);
-                viewCountRepository.save(viewCount);
-                updatedCount++;
-
-                LOG.trace("[{}] Updated {} count for video {} to {}",
-                        replicaId, currentReplicaId, videoId, mergedCount);
-            }
+            LOG.debug("[{}] Updated local count for video {} to {}",
+                    replicaId, videoId, mergedCount);
         }
-
-        LOG.debug("[{}] Applied merged counts for video {}: updated {} replica entries",
-                replicaId, videoId, updatedCount);
     }
 
     /**
-     * Prima sync request od druge replike i vrsi MERGE.
-     * Ova metoda se poziva kada druga replika posalje update.
-     *
-     * @param syncRequest Sync request sa stanjem G-Counter-a
+     * Prima sync request od druge replike.
      */
     @Transactional
     public void receiveSyncRequest(CRDTSyncRequest syncRequest) {
@@ -248,17 +201,12 @@ public class ReplicaSyncService {
                 replicaId, syncRequest.getSourceReplicaId(), syncRequest.getVideoId());
 
         try {
-            // 1. Ucitaj lokalni counter
             GCounter localCounter = getLocalGCounter(syncRequest.getVideoId());
-
-            // 2. Kreiraj remote counter iz sync request-a
             GCounter remoteCounter = new GCounter(syncRequest.getCounts());
 
-            // 3. MERGE
             GCounter merged = localCounter.merge(remoteCounter);
 
-            // 4. Primeni merged vrednosti
-            applyMergedCounts(syncRequest.getVideoId(), merged);
+            applyMergedCountsToLocalTable(syncRequest.getVideoId(), merged);
 
             LOG.info("[{}] Successfully merged sync request from {} for video {}",
                     replicaId, syncRequest.getSourceReplicaId(), syncRequest.getVideoId());
@@ -266,7 +214,6 @@ public class ReplicaSyncService {
         } catch (Exception e) {
             LOG.error("[{}] Failed to merge sync request from {}: {}",
                     replicaId, syncRequest.getSourceReplicaId(), e.getMessage());
-            throw e;
         }
     }
 }

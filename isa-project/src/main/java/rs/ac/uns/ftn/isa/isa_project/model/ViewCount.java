@@ -3,26 +3,31 @@ package rs.ac.uns.ftn.isa.isa_project.model;
 import jakarta.persistence.*;
 
 /**
- * Entity klasa koja zamenjuje ViewCountReplica1 i ViewCountReplica2.
+ * Generička entity klasa za view count.
+ *
+ * KLJUČNA IZMENA: Ne koristi @Table anotaciju!
+ * Ime tabele se dinamički postavlja u runtime-u.
  */
 @Entity
-@Table(name = "view_counts")
-@IdClass(ViewCountId.class)
 public class ViewCount {
 
     @Id
     @Column(name = "video_id", nullable = false)
     private Long videoId;
 
-    @Id
-    @Column(name = "replica_id", nullable = false, length = 50)
-    private String replicaId;
-
     @Column(name = "count", nullable = false)
     private Long count = 0L;
 
-    // Konstruktori
+    // Transient field - ne perzistuje se
+    @Transient
+    private String replicaId;
+
     public ViewCount() {
+    }
+
+    public ViewCount(Long videoId) {
+        this.videoId = videoId;
+        this.count = 0L;
     }
 
     public ViewCount(Long videoId, String replicaId) {
@@ -31,27 +36,13 @@ public class ViewCount {
         this.count = 0L;
     }
 
-    public ViewCount(Long videoId, String replicaId, Long count) {
-        this.videoId = videoId;
-        this.replicaId = replicaId;
-        this.count = count;
-    }
-
-    // Getters i Setters
+    // Getters and Setters
     public Long getVideoId() {
         return videoId;
     }
 
     public void setVideoId(Long videoId) {
         this.videoId = videoId;
-    }
-
-    public String getReplicaId() {
-        return replicaId;
-    }
-
-    public void setReplicaId(String replicaId) {
-        this.replicaId = replicaId;
     }
 
     public Long getCount() {
@@ -62,7 +53,14 @@ public class ViewCount {
         this.count = count;
     }
 
-    // Helper metoda za increment
+    public String getReplicaId() {
+        return replicaId;
+    }
+
+    public void setReplicaId(String replicaId) {
+        this.replicaId = replicaId;
+    }
+
     public void increment() {
         this.count++;
     }
