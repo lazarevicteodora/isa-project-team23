@@ -4,7 +4,7 @@ import random
 
 # Load balancer URL
 LOAD_BALANCER = "http://localhost:80"
-VIDEO_ID = 29
+VIDEO_ID = 1
 
 def send_view_requests(num_requests=100):
     """Šalje zahteve za increment view count"""
