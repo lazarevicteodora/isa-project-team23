@@ -14,4 +14,6 @@ export interface Video {
   longitude?: number;
   likeCount?: number;
   commentCount?: number;
+  transcodingStatus?: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  transcodingProgress?: number; // 0-100
 }

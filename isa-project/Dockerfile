@@ -18,11 +18,17 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache \
+    ffmpeg \
+    wget \
+    curl \
+    bash
+
 # Copy JAR iz build stage-a
 COPY --from=build /app/target/*.jar app.jar
 
 # Create directories za storage i cache
-RUN mkdir -p /app/storage /app/cache
+RUN mkdir -p /app/storage /app/cache /app/storage/transcoded
 
 # Expose port
 EXPOSE 8080

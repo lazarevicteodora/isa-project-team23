@@ -174,7 +174,7 @@ export class VideoUploadComponent {
           this.uploadProgress = Math.round(100 * event.loaded / (event.total || 1));
         } else if (event.type === HttpEventType.Response) {
           // Upload completed
-          this.successMessage = 'Video uspešno uploadovan! 🎉';
+          this.successMessage = 'Video uspešno uploadovan! 🎉\n\n🎬 Transcoding u toku...\nVideo će uskoro biti dostupan u više rezolucija (720p, 480p, 360p).';
           setTimeout(() => {
             this.router.navigate(['/home']);
           }, 2000);

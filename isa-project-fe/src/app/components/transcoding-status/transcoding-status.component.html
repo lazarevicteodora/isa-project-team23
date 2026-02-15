@@ -1,0 +1,63 @@
+<!-- OPCIONO: Komponenta za prikaz transcoding statusa -->
+<div class="transcoding-status" *ngIf="transcodingJobs && transcodingJobs.length > 0">
+  <h3>🎬 Status Transcoding-a</h3>
+  
+  <div *ngFor="let job of transcodingJobs" class="transcoding-job">
+    
+    <!-- Status Badge -->
+    <div class="status-header">
+      <span class="job-id">Job: {{ job.jobId | slice:0:8 }}...</span>
+      
+      <span class="status-badge" [ngClass]="{
+        'status-pending': job.status === 'PENDING',
+        'status-processing': job.status === 'PROCESSING',
+        'status-completed': job.status === 'COMPLETED',
+        'status-failed': job.status === 'FAILED'
+      }">
+        <span *ngIf="job.status === 'PENDING'">⏳ Čeka u redu</span>
+        <span *ngIf="job.status === 'PROCESSING'">🔄 U obradi</span>
+        <span *ngIf="job.status === 'COMPLETED'">✅ Završeno</span>
+        <span *ngIf="job.status === 'FAILED'">❌ Neuspelo</span>
+      </span>
+    </div>
+
+    <!-- Progress Bar (samo za PROCESSING) -->
+    <div *ngIf="job.status === 'PROCESSING'" class="progress-bar">
+      <div class="progress-fill" [style.width.%]="job.progress || 0">
+        {{ job.progress || 0 }}%
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="job-info">
+      <small *ngIf="job.consumerId">
+        🖥️ Consumer: {{ job.consumerId }}
+      </small>
+      <small *ngIf="job.startedAt">
+        🕐 Započeto: {{ job.startedAt | date:'HH:mm:ss' }}
+      </small>
+      <small *ngIf="job.completedAt">
+        ✓ Završeno: {{ job.completedAt | date:'HH:mm:ss' }}
+      </small>
+    </div>
+
+    <!-- Output Files (samo za COMPLETED) -->
+    <div *ngIf="job.status === 'COMPLETED' && job.outputPaths" class="output-files">
+      <p><strong>Dostupne rezolucije:</strong></p>
+      <div class="resolutions">
+        <span *ngFor="let path of job.outputPaths" class="resolution-badge">
+          {{ getResolutionFromPath(path) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Error Message (samo za FAILED) -->
+    <div *ngIf="job.status === 'FAILED' && job.errorMessage" class="error-message">
+      <p>⚠️ Greška: {{ job.errorMessage }}</p>
+      <button class="btn-retry" (click)="retryJob(job.jobId)">
+        🔄 Pokušaj ponovo
+      </button>
+    </div>
+
+  </div>
+</div>

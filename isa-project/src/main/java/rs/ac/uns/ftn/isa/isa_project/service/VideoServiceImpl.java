@@ -33,6 +33,9 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private TranscodingService transcodingService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Video createVideo(VideoUploadDTO dto) throws Exception {
@@ -65,7 +68,19 @@ public class VideoServiceImpl implements VideoService {
             video.setVideoPath(videoPath);
             video.setThumbnailPath(thumbnailPath);
 
-            return videoRepository.save(video);
+            Video savedVideo = videoRepository.save(video);
+
+            // 5. NOVO: Automatski pokreni transcoding
+            try {
+                String jobId = transcodingService.startTranscoding(savedVideo);
+                logger.info("Transcoding initiated for video {}. Job ID: {}", savedVideo.getId(), jobId);
+            } catch (Exception e) {
+                // Ne prekidaj upload ako transcoding ne uspe da se pokrene
+                logger.error("Failed to initiate transcoding for video {}: {}",
+                        savedVideo.getId(), e.getMessage());
+            }
+
+            return savedVideo;
 
         } catch (TimeoutException e) {
             logger.error("TIMEOUT! Pokrećem rollback fajlova...");
