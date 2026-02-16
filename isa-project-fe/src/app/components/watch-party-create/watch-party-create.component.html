@@ -1,0 +1,59 @@
+<div class="create-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>🎬 JutjuBić - Watch Party</h1>
+    </div>
+    <div class="navbar-menu">
+      <button class="btn btn-back" (click)="goBack()">← Nazad</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="cards-wrapper">
+
+      <!-- Kreiraj sobu -->
+      <div class="card create-card">
+        <div class="card-icon">🎉</div>
+        <h2>Kreiraj Watch Party</h2>
+        <p class="subtitle">Pozovi prijatelje da zajedno gledaju</p>
+
+        <div *ngIf="videoTitle" class="video-preview">
+          <span class="video-label">Video:</span>
+          <span class="video-name">{{ videoTitle }}</span>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+
+        <button class="btn btn-create" (click)="createRoom()" [disabled]="loading">
+          <span *ngIf="!loading">🚀 Kreiraj sobu</span>
+          <span *ngIf="loading">Kreiranje...</span>
+        </button>
+
+        <p class="hint">Dobićete kod sobe koji možete podeliti sa prijateljima.</p>
+      </div>
+
+      <!-- Pridruži se sobi -->
+      <div class="card join-card">
+        <div class="card-icon">🔗</div>
+        <h2>Pridruži se sobi</h2>
+        <p class="subtitle">Unesi kod koji si dobio/la</p>
+
+        <div class="input-group">
+          <input
+            type="text"
+            [(ngModel)]="joinCode"
+            placeholder="npr. AB12CD"
+            maxlength="6"
+            class="code-input"
+            (keyup.enter)="joinRoom()">
+        </div>
+
+        <button class="btn btn-join" (click)="joinRoom()" [disabled]="joiningRoom">
+          <span *ngIf="!joiningRoom">➡️ Pridruži se</span>
+          <span *ngIf="joiningRoom">Učitavanje...</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

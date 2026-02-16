@@ -1,6 +1,27 @@
 version: '3.8'
 
 services:
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: jutjubic-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - jutjubic-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Backend Replica 1
   backend1:
     build:
@@ -19,6 +40,15 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: root
 
+      # RabbitMQ connection
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+
+      # Consumer ID (svaki backend može biti consumer)
+      CONSUMER_ID: consumer-backend1
+
       SPRING_PROFILES_ACTIVE: production
 
       JAVA_OPTS: >
@@ -33,6 +63,9 @@ services:
       - ./cache:/app/cache
     networks:
       - jutjubic-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   # Backend Replica 2
@@ -53,6 +86,15 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: root
 
+      # RabbitMQ connection
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+
+      # Consumer ID
+      CONSUMER_ID: consumer-backend2
+
       SPRING_PROFILES_ACTIVE: production
 
       JAVA_OPTS: >
@@ -67,7 +109,86 @@ services:
       - ./cache:/app/cache
     networks:
       - jutjubic-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
+
+
+  # Dedicirani Transcoding Consumer 1
+  transcoding-consumer-1:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: jutjubic-transcoding-consumer-1
+      environment:
+        # Isti DB i RabbitMQ kao backend
+        DB_URL: jdbc:postgresql://host.docker.internal:5432/isa_project_db
+        DB_USERNAME: postgres
+        DB_PASSWORD: root
+
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: 5672
+        SPRING_RABBITMQ_USERNAME: guest
+        SPRING_RABBITMQ_PASSWORD: guest
+
+        # Consumer ID
+        CONSUMER_ID: transcoding-consumer-1
+
+        SPRING_PROFILES_ACTIVE: consumer
+
+
+        # Oznaka da je ovo dedicated consumer (ne pokreće web server)
+        SPRING_MAIN_WEB_APPLICATION_TYPE: servlet
+
+        JAVA_OPTS: >
+          -Xms256m
+          -Xmx512m
+          -XX:+UseG1GC
+      volumes:
+        - ./storage:/app/storage
+      networks:
+        - jutjubic-network
+      depends_on:
+        rabbitmq:
+          condition: service_healthy
+      restart: unless-stopped
+
+  # Dedicirani Transcoding Consumer 2
+  transcoding-consumer-2:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: jutjubic-transcoding-consumer-2
+      environment:
+        DB_URL: jdbc:postgresql://host.docker.internal:5432/isa_project_db
+        DB_USERNAME: postgres
+        DB_PASSWORD: root
+
+        SPRING_RABBITMQ_HOST: rabbitmq
+        SPRING_RABBITMQ_PORT: 5672
+        SPRING_RABBITMQ_USERNAME: guest
+        SPRING_RABBITMQ_PASSWORD: guest
+
+        CONSUMER_ID: transcoding-consumer-2
+
+        SPRING_PROFILES_ACTIVE: consumer
+
+
+        SPRING_MAIN_WEB_APPLICATION_TYPE: servlet
+
+        JAVA_OPTS: >
+          -Xms256m
+          -Xmx512m
+          -XX:+UseG1GC
+      volumes:
+        - ./storage:/app/storage
+      networks:
+        - jutjubic-network
+      depends_on:
+        rabbitmq:
+          condition: service_healthy
+      restart: unless-stopped
 
   # Nginx Load Balancer
   nginx:
@@ -88,4 +209,7 @@ services:
 networks:
   jutjubic-network:
     driver: bridge
+
+volumes:
+  rabbitmq_data:
 

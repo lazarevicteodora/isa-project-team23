@@ -11,6 +11,7 @@ import { HttpEvent } from '@angular/common/http';
 export class VideoService {
 
   private apiUrl = 'http://localhost:8080/api/videos';
+  private transcodingApiUrl = 'http://localhost:8080/api/transcoding';
 
   constructor(private http: HttpClient) { }
 
@@ -113,4 +114,31 @@ getStreamingStatus(videoId: number): Observable<{
 }
 
 // ========== KRAJ ==========
+/**
+   * Dobavi status transcoding job-a za specifični video
+   */
+  getTranscodingStatus(videoId: number): Observable<any> {
+    return this.http.get(`${this.transcodingApiUrl}/video/${videoId}`);
+  }
+
+  /**
+   * Dobavi status pojedinačnog job-a po jobId
+   */
+  getTranscodingJobStatus(jobId: string): Observable<any> {
+    return this.http.get(`${this.transcodingApiUrl}/job/${jobId}`);
+  }
+
+  /**
+   * Retry neuspelog transcoding job-a (samo admin)
+   */
+  retryTranscodingJob(jobId: string): Observable<any> {
+    return this.http.post(`${this.transcodingApiUrl}/retry/${jobId}`, {});
+  }
+
+  /**
+   * Dobavi statistiku transcoding-a (samo admin)
+   */
+  getTranscodingStats(): Observable<any> {
+    return this.http.get(`${this.transcodingApiUrl}/stats`);
+  }
 }
