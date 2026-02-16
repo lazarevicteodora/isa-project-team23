@@ -12,6 +12,9 @@ import rs.ac.uns.ftn.isa.isa_project.dto.VideoUploadDTO;
 import rs.ac.uns.ftn.isa.isa_project.model.User;
 import rs.ac.uns.ftn.isa.isa_project.model.Video;
 import rs.ac.uns.ftn.isa.isa_project.repository.VideoRepository;
+import rs.ac.uns.ftn.isa.isa_project.model.ViewLog;
+import rs.ac.uns.ftn.isa.isa_project.repository.ViewLogRepository;
+import java.time.LocalDate;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +32,9 @@ public class VideoServiceImpl implements VideoService {
 
     @Autowired
     private VideoRepository videoRepository;
+    @Autowired
+    private ViewLogRepository viewLogRepository;
+
 
     @Autowired
     private FileStorageService fileStorageService;
@@ -122,13 +128,19 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Transactional(timeout = 5)
     public void incrementViewCount(Long videoId) {
-        // 1. Pročitaj video SA LOCK-om (drugi korisnici ČEKAJU ovde)
+        // 1. Pročitaj video SA LOCK-om
         Video video = videoRepository.findByIdForUpdate(videoId)
                 .orElseThrow(() -> new RuntimeException("Video ne postoji!"));
 
         video.setViewCount(video.getViewCount() + 1);
-
         videoRepository.save(video);
 
+        // 2. Beleženje u ViewLog za ETL pipeline
+        LocalDate today = LocalDate.now();
+        ViewLog viewLog = viewLogRepository
+                .findByVideoIdAndViewDate(videoId, today)
+                .orElseGet(() -> new ViewLog(video, today));
+        viewLog.increment();
+        viewLogRepository.save(viewLog);
     }
 }
