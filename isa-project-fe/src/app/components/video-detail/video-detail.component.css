@@ -563,6 +563,36 @@
   font-weight: 600;
 }
 
+  .watch-party-section {
+    padding: 1.5rem 0;
+    border-top: 2px solid #ecf0f1;
+    text-align: center;
+  }
+
+  .btn-watch-party {
+    background: linear-gradient(135deg, #1a1a2e, #e94560);
+    color: white;
+    border: none;
+    padding: 0.85rem 2.5rem;
+    border-radius: 30px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+  }
+
+  .btn-watch-party:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(233, 69, 96, 0.5);
+  }
+
+  .watch-party-hint {
+    color: #95a5a6;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+
 @media (max-width: 768px) {
   .video-title {
     font-size: 1.4rem;

@@ -9,7 +9,8 @@ import { AuthGuard } from '../app/guards/auth.guard';
 import { VideoUploadComponent } from './components/video-upload/video-upload.component';
 import { VideoDetailComponent } from './components/video-detail/video-detail.component';
 import { ProfileComponent } from './components/profile/profile.component'; 
-
+import { WatchPartyComponent } from './components/watch-party/watch-party.component';
+import { WatchPartyCreateComponent } from './components/watch-party-create/watch-party-create.component';
 
 const routes: Routes = [
   { path: '', component: LandingComponent },  
@@ -31,6 +32,16 @@ const routes: Routes = [
     component: ProfileComponent 
   },
   { path: 'activate/:token', component: ActivateComponent },
+   {
+    path: 'watch-party/create/:videoId',
+    component: WatchPartyCreateComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'watch-party/:roomCode',
+    component: WatchPartyComponent,
+    canActivate: [AuthGuard]
+  },
   { path: '**', redirectTo: '' }  
 ];
 
