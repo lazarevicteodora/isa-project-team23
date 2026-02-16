@@ -69,6 +69,11 @@
 
     <div class="video-list" *ngIf="videos.length > 0">
       <div class="video-card" *ngFor="let video of videos">
+        <!-- LIVE Badge -->
+        <div *ngIf="video.streamingStatus === 'LIVE'" class="live-badge">
+          🔴 LIVE
+        </div>
+
         <h3>{{ video.title }}</h3>
         <p>{{ video.description }}</p>
 

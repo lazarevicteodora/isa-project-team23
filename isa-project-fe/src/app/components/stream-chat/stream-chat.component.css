@@ -325,3 +325,13 @@
     left: 16px;
   }
 }
+
+/* Sigurno skrivanje komponente */
+:host([hidden]) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+:host([hidden]) .chat-container {
+  display: none !important;
+}

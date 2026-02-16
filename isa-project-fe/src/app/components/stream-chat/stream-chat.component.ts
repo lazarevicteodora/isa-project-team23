@@ -35,6 +35,14 @@ export class StreamChatComponent implements OnInit, OnDestroy, AfterViewChecked 
   ngOnInit(): void {
     console.log(`🚀 Stream Chat inicijalizacija za video: ${this.videoId}, korisnik: ${this.username}`);
     
+    // Validacija
+    if (!this.videoId || !this.username) {
+      console.error('❌ Stream Chat init failed: videoId ili username nisu postavljeni');
+      this.errorMessage = 'Greška pri inicijalizaciji četa';
+      this.connectionStatus = 'error';
+      return;
+    }
+    
     // Konektuj se na WebSocket
     this.streamChatService.connect(this.videoId, this.username);
 
@@ -94,11 +102,21 @@ export class StreamChatComponent implements OnInit, OnDestroy, AfterViewChecked 
    * Pošalji novu poruku
    */
   sendMessage(): void {
-    if (!this.newMessage.trim() || this.connectionStatus !== 'connected') {
+    console.log(`📤 sendMessage() pozvan - Status: ${this.connectionStatus}, Tekst: ${this.newMessage.trim()}`);
+    
+    if (!this.newMessage.trim()) {
+      console.warn('⚠️ Poruka je prazna');
+      return;
+    }
+    
+    if (this.connectionStatus !== 'connected') {
+      console.warn(`⚠️ WebSocket nije konekcije. Status: ${this.connectionStatus}`);
+      alert('❌ Chat nije konekcije. Pokušajte da osvežite stranicu.');
       return;
     }
 
     this.isSubmittingMessage = true;
+    console.log('📨 Slanjem poruka u servis...');
 
     // Pošalji samo tekst poruke - servis će kreirati ChatMessage objekat
     this.streamChatService.sendMessage(this.newMessage.trim());

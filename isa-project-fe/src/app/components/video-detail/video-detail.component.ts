@@ -43,7 +43,7 @@ export class VideoDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   currentUsername: string | null = null;
 
   // Chat
-  showChat: boolean = true;
+  showChat: boolean = false;
 
   // Video player reference
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
@@ -104,6 +104,10 @@ export class VideoDetailComponent implements OnInit, OnDestroy, AfterViewInit {
         
         console.log(`📊 Status: ${status.status}, Offset: ${status.currentOffset}s`);
         
+        // Prikaži chat SAMO tokom LIVE premijere
+        this.showChat = this.isAuthenticated && status.status === 'LIVE';
+        console.log(`💬 Chat vidljivost: ${this.showChat} (Status: ${status.status})`);
+        
         // Ako je video prešao iz UPCOMING u LIVE, reload-uj video
         if (this.streamingStatus === 'LIVE' && previousStatus === 'UPCOMING') {
           console.log('🔴 Video je sada LIVE! Reload-ujem...');
@@ -126,6 +130,9 @@ export class VideoDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+// DODAJ OVO U video-detail.component.ts
+// Zameni postojeću setupVideoPlayer() metodu sa ovom:
+
 setupVideoPlayer(): void {
   if (!this.videoPlayerRef || this.streamingStatus !== 'LIVE' || this.currentOffset === null) {
     return;
@@ -140,12 +147,14 @@ setupVideoPlayer(): void {
   console.log('🎬 Setup video player za LIVE streaming...');
   
   const videoElement = this.videoPlayerRef.nativeElement;
+  let maxAllowedTime = this.currentOffset || 0;
   
   // REŠENJE: Proveri da li je video već učitan
   if (videoElement.readyState >= 1) {
     // Video je već spreman, setuj offset ODMAH
     if (this.currentOffset !== null && this.currentOffset > 0) {
       videoElement.currentTime = this.currentOffset;
+      maxAllowedTime = this.currentOffset;
       console.log(`✅ Offset odmah setovan na: ${this.currentOffset}s (readyState: ${videoElement.readyState})`);
     }
   } else {
@@ -155,6 +164,7 @@ setupVideoPlayer(): void {
     const onMetadataLoaded = () => {
       if (this.currentOffset !== null && this.currentOffset > 0) {
         videoElement.currentTime = this.currentOffset;
+        maxAllowedTime = this.currentOffset;
         console.log(`✅ Offset setovan nakon učitavanja: ${this.currentOffset}s`);
       }
       videoElement.removeEventListener('loadedmetadata', onMetadataLoaded);
@@ -163,7 +173,22 @@ setupVideoPlayer(): void {
     videoElement.addEventListener('loadedmetadata', onMetadataLoaded);
   }
   
-  // Periodično sinhronizuj svake 10 sekundi (samo jednom!)
+  // 🔥 SEEK PREVENTION - Ažuriraj maxAllowedTime svakog sekunda
+  setInterval(() => {
+    if (!videoElement.paused) {
+      maxAllowedTime = videoElement.currentTime;
+    }
+  }, 1000);
+  
+  // 🚫 Spreči premotavanje unapred tokom LIVE premiere
+  videoElement.addEventListener('seeking', () => {
+    if (this.streamingStatus === 'LIVE' && videoElement.currentTime > maxAllowedTime) {
+      console.warn('🚫 Premotavanje unapred blokirano! (Live premijera)');
+      videoElement.currentTime = maxAllowedTime;
+    }
+  });
+  
+  // Periodično sinhronizuj svake 10 sekundi
   setInterval(() => {
     this.syncVideoOffset();
   }, 10000);
@@ -231,7 +256,8 @@ setupVideoPlayer(): void {
         this.currentUserId = payload.userId || payload.id || payload.user_id || null;
         this.currentUserEmail = payload.sub || payload.email || payload.username || null;
         this.currentUsername = payload.username || payload.sub || 'Anonimni korisnik';
-        this.showChat = true;
+        // Chat se prikazuje samo tokom LIVE premijere (loadStreamingStatus će to postaviti)
+        this.showChat = false;
       }
     } catch (e) {
       localStorage.removeItem('token');

@@ -222,9 +222,10 @@
   </div>
 </div>
 
-<!-- Stream Chat Widget -->
+<!-- Stream Chat Widget - SAMO tokom LIVE premiere -->
 <app-stream-chat
-  *ngIf="showChat && video && currentUsername"
+  *ngIf="showChat && video && currentUsername && streamingStatus === 'LIVE'"
+  [hidden]="!(showChat && video && currentUsername && streamingStatus === 'LIVE')"
   [videoId]="video.id"
   [username]="currentUsername">
 </app-stream-chat>

@@ -54,13 +54,17 @@ export class HomeComponent implements OnInit {
   loadVideos(): void {
   this.videoService.getAllVideos().subscribe({
     next: (data) => {
-      this.videos = data.map(video => ({
-        ...video,
-        videoUrl: `http://localhost:8080/api/videos/${video.id}/stream`,
-        thumbnailUrl: `http://localhost:8080/api/videos/${video.id}/thumbnail`,
-        showVideo: false 
-      }));
-      console.log('VIDEOS WITH URLS:', this.videos); 
+      // Filtriraj videa - prikaži samo objavljena ili LIVE
+      // Sakrij UPCOMING videa (koja nisu još objavljena)
+      this.videos = data
+        .filter(video => video.streamingStatus !== 'UPCOMING')
+        .map(video => ({
+          ...video,
+          videoUrl: `http://localhost:8080/api/videos/${video.id}/stream`,
+          thumbnailUrl: `http://localhost:8080/api/videos/${video.id}/thumbnail`,
+          showVideo: false 
+        }));
+      console.log('VIDEOS WITH URLS (filtrirani):', this.videos); 
     },
     error: (err) => {
       console.error('Greška pri učitavanju videa', err);

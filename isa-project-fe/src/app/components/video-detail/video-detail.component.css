@@ -727,3 +727,9 @@
   }
 }
 }
+
+/* Stream Chat - Sigurno skrivanje */
+app-stream-chat[hidden] {
+  display: none !important;
+  pointer-events: none;
+}

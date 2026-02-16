@@ -1,4 +1,4 @@
-<div class="chat-container" [class.chat-open]="chatOpen">
+<div class="chat-container" [class.chat-open]="chatOpen" *ngIf="videoId && username">
   <!-- Chat Header -->
   <div class="chat-header" (click)="toggleChat()">
     <div class="chat-title">
