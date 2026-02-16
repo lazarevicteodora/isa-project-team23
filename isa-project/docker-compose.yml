@@ -135,8 +135,11 @@ services:
         # Consumer ID
         CONSUMER_ID: transcoding-consumer-1
 
+        SPRING_PROFILES_ACTIVE: consumer
+
+
         # Oznaka da je ovo dedicated consumer (ne pokreće web server)
-        SPRING_MAIN_WEB_APPLICATION_TYPE: none
+        SPRING_MAIN_WEB_APPLICATION_TYPE: servlet
 
         JAVA_OPTS: >
           -Xms256m
@@ -169,7 +172,10 @@ services:
 
         CONSUMER_ID: transcoding-consumer-2
 
-        SPRING_MAIN_WEB_APPLICATION_TYPE: none
+        SPRING_PROFILES_ACTIVE: consumer
+
+
+        SPRING_MAIN_WEB_APPLICATION_TYPE: servlet
 
         JAVA_OPTS: >
           -Xms256m

@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.isa.isa_project.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import java.util.Map;
 /**
  * Consumer servis - sluša RabbitMQ queue i procesira transcoding zadatke.
  */
+@Profile("consumer")
 @Component
 public class TranscodingConsumer {
 
@@ -39,6 +41,11 @@ public class TranscodingConsumer {
     @Transactional
     public void handleTranscodingJob(TranscodingJobDTO jobDTO) {
         LOG.info("[{}] Received transcoding job: {}", consumerId, jobDTO.getJobId());
+
+        // Konvertuj putanju u Docker-kompatibilnu putanju
+        String convertedPath = convertToDockerPath(jobDTO.getOriginalVideoPath());
+        LOG.info("[{}] Converted path: {} -> {}", consumerId, jobDTO.getOriginalVideoPath(), convertedPath);
+        jobDTO.setOriginalVideoPath(convertedPath);
 
         TranscodingJob job = null;
 
@@ -94,8 +101,34 @@ public class TranscodingConsumer {
             }
 
             // Re-throw exception da RabbitMQ pošalje poruku u DLQ
-            throw new RuntimeException("Transcoding failed", e);
+            // throw new RuntimeException("Transcoding failed", e);
         }
+    }
+
+    private String convertToDockerPath(String originalPath) {
+        if (originalPath == null) {
+            return null;
+        }
+
+        // Ako već počinje sa /app, vrati kako jeste
+        if (originalPath.startsWith("/app/")) {
+            return originalPath;
+        }
+
+        // Normalizuj separatore (Windows \ -> /)
+        String normalized = originalPath.replace("\\", "/");
+
+        // Pronađi "storage/" deo putanje i uzmi sve od tuda
+        int storageIndex = normalized.indexOf("storage/");
+
+        if (storageIndex != -1) {
+            String relativePath = normalized.substring(storageIndex);
+            return "/app/" + relativePath;
+        }
+
+        // Ako ne može da konvertuje, vrati original
+        LOG.warn("[{}] Could not convert path to Docker path: {}", consumerId, originalPath);
+        return originalPath;
     }
 
     /**
