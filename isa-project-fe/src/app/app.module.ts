@@ -8,6 +8,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
+import { WatchPartyService } from './services/watch-party.service';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -21,6 +22,8 @@ import { VideoDetailComponent } from './components/video-detail/video-detail.com
 import { ProfileComponent } from './components/profile/profile.component';
 import { ParseDatePipe } from './pipes/date-parser.pipe';
 import { StreamChatComponent } from './components/stream-chat/stream-chat.component'; 
+import { WatchPartyComponent } from './components/watch-party/watch-party.component';
+import { WatchPartyCreateComponent } from './components/watch-party-create/watch-party-create.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +37,9 @@ import { StreamChatComponent } from './components/stream-chat/stream-chat.compon
     VideoDetailComponent,
     ProfileComponent,
     ParseDatePipe,
-    StreamChatComponent
+    StreamChatComponent,
+    WatchPartyComponent,
+    WatchPartyCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -45,6 +50,7 @@ import { StreamChatComponent } from './components/stream-chat/stream-chat.compon
   providers: [
     AuthService,
     UserService,
+    WatchPartyService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

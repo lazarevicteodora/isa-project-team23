@@ -57,6 +57,9 @@ public class Video {
     @Column(name = "stream_started_at")
     private LocalDateTime streamStartedAt;
 
+    @Column(name = "thumbnail_compressed_path")
+    private String thumbnailCompressedPath;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
@@ -241,6 +244,13 @@ public class Video {
         this.reports = reports;
     }
 
+    public String getThumbnailCompressedPath() {
+        return thumbnailCompressedPath;
+    }
+
+    public void setThumbnailCompressedPath(String thumbnailCompressedPath) {
+        this.thumbnailCompressedPath = thumbnailCompressedPath;
+    }
 
     @Override
     public boolean equals(Object o) {

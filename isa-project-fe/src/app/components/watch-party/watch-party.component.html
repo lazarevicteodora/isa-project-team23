@@ -1,0 +1,98 @@
+<div class="watch-party-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>🎬 JutjuBić - Watch Party</h1>
+    </div>
+    <div class="navbar-menu">
+      <button class="btn btn-back" (click)="leaveRoom()">← Napusti sobu</button>
+    </div>
+  </nav>
+
+  <div class="content">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Učitavanje sobe...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage && !loading" class="error-box">
+      <h2>😞 Greška</h2>
+      <p>{{ errorMessage }}</p>
+      <button class="btn btn-primary" routerLink="/">Idi na početnu</button>
+    </div>
+
+    <!-- Video Started Overlay -->
+    <div *ngIf="videoStarted" class="video-started-overlay">
+      <div class="video-started-box">
+        <div class="play-icon">▶️</div>
+        <h2>Video je pokrenut!</h2>
+        <p>Preusmeravamo vas na video...</p>
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Room Content -->
+    <div *ngIf="room && !loading" class="room-content">
+
+      <!-- Room Header -->
+      <div class="room-header">
+        <div class="room-info">
+          <h2>🎥 {{ room.videoTitle }}</h2>
+          <div class="room-code-box">
+            <span class="room-code-label">Kod sobe:</span>
+            <span class="room-code">{{ room.roomCode }}</span>
+            <button class="btn-icon" (click)="copyRoomCode()" title="Kopiraj kod">
+            {{ copySuccess ? '✅' : '📋' }} Kopiraj kod
+            </button>
+          </div>
+          <p class="room-creator">Kreator: <strong>{{ room.creatorUsername }}</strong></p>
+        </div>
+      </div>
+
+      <!-- Members Section -->
+      <div class="members-section">
+        <h3>👥 Članovi sobe ({{ members.length }})</h3>
+        <div class="members-list">
+          <div class="member-chip" *ngFor="let member of members">
+            <span class="member-avatar">{{ member.charAt(0).toUpperCase() }}</span>
+            <span class="member-name">{{ member }}</span>
+            <span *ngIf="member === room.creatorUsername" class="creator-badge">👑</span>
+            <span *ngIf="member === currentUsername" class="you-badge">Ti</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Panel -->
+      <div class="action-panel">
+
+        <!-- Creator panel -->
+        <div *ngIf="isCreator" class="creator-panel">
+          <div class="waiting-info">
+            <h3>⏳ Čekate da se svi pridruže...</h3>
+            <p>Podelite link sobe sa prijateljima, pa pokrenite video kada budete spremni.</p>
+            <p class="link-display">{{ 'http://localhost:4200/watch-party/' + room.roomCode }}</p>
+          </div>
+          <button class="btn btn-start" (click)="startVideo()">
+            ▶️ Pokreni video za sve
+          </button>
+          <p class="creator-hint">
+            Kada kliknete dugme, svi članovi će biti automatski preusmereni na video.
+          </p>
+        </div>
+
+        <!-- Member waiting panel -->
+        <div *ngIf="!isCreator" class="member-panel">
+          <div class="waiting-animation">
+            <div class="pulse-dot"></div>
+          </div>
+          <h3>⏳ Čekate da kreator pokrene video...</h3>
+          <p>Kada <strong>{{ room.creatorUsername }}</strong> pokrene video, automatski ćete biti preusmereni.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
