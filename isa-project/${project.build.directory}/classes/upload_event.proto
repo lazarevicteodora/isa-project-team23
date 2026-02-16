@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package rs.ac.uns.ftn.isa.isa_project.proto;
+
+option java_package = "rs.ac.uns.ftn.isa.isa_project.proto";
+option java_outer_classname = "UploadEventProto";
+
+message UploadEvent {
+  int64 video_id = 1;
+  string title = 2;
+  int64 file_size = 3;
+  string author_username = 4;
+  string video_path = 5;
+  string uploaded_at = 6;
+}

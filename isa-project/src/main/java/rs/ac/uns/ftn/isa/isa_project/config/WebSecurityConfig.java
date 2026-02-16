@@ -60,7 +60,6 @@ public class WebSecurityConfig {
     @Autowired
     private TokenUtils tokenUtils;
 
-    // ✅ DODAJ CORS Configuration Bean
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -122,6 +121,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/videos/*/likes").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/videos/*/comments/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/benchmark/run").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/popular-videos").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/popular-videos/run").hasRole("ADMIN")
                 .requestMatchers("/actuator/**").permitAll()

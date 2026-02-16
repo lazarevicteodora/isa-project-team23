@@ -140,12 +140,6 @@
 			<version>1.1.1</version>
 		</dependency>
 
-		<!-- Jackson Core -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-
 		<!-- Jackson Java 8 Date/Time -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -186,6 +180,20 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+		<!-- Protocol Buffers -->
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.25.1</version>
+		</dependency>
+
+		<!-- Protobuf JSON support -->
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java-util</artifactId>
+			<version>3.25.1</version>
 		</dependency>
 		<!-- Spring Boot Actuator - expose metrike -->
 		<dependency>
