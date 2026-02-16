@@ -68,6 +68,8 @@ public class WebSecurityConfig {
         );
 
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/ws/**").permitAll()  // ← MORA BITI PRVO!
+
                 // Auth endpoint-i - javno dostupni
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()

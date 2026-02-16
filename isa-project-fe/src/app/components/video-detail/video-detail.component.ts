@@ -40,6 +40,10 @@ export class VideoDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   isAuthenticated: boolean = false;
   currentUserId: number | null = null;
   currentUserEmail: string | null = null;
+  currentUsername: string | null = null;
+
+  // Chat
+  showChat: boolean = true;
 
   // Video player reference
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
@@ -210,6 +214,7 @@ setupVideoPlayer(): void {
     const token = localStorage.getItem('token');
     if (!token) {
       this.isAuthenticated = false;
+      this.showChat = false;
       return;
     }
     
@@ -220,14 +225,18 @@ setupVideoPlayer(): void {
       if (expired) {
         localStorage.removeItem('token');
         this.isAuthenticated = false;
+        this.showChat = false;
       } else {
         this.isAuthenticated = true;
         this.currentUserId = payload.userId || payload.id || payload.user_id || null;
         this.currentUserEmail = payload.sub || payload.email || payload.username || null;
+        this.currentUsername = payload.username || payload.sub || 'Anonimni korisnik';
+        this.showChat = true;
       }
     } catch (e) {
       localStorage.removeItem('token');
       this.isAuthenticated = false;
+      this.showChat = false;
     }
   }
 
