@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.isa.isa_project.crdt.GCounter;
 import rs.ac.uns.ftn.isa.isa_project.model.ViewCount;
 import rs.ac.uns.ftn.isa.isa_project.repository.ViewCountRepository;
+import rs.ac.uns.ftn.isa.isa_project.model.ViewLog;
+import rs.ac.uns.ftn.isa.isa_project.repository.ViewLogRepository;
+import rs.ac.uns.ftn.isa.isa_project.repository.VideoRepository;
+import java.time.LocalDate;
 
 import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
@@ -27,6 +31,12 @@ public class CRDTViewCountService {
 
     @Autowired
     private ViewCountRepository viewCountRepository;
+
+    @Autowired
+    private ViewLogRepository viewLogRepository;
+
+    @Autowired
+    private VideoRepository videoRepository;
 
     @Autowired
     private ReplicaSyncService syncService;
@@ -63,7 +73,6 @@ public class CRDTViewCountService {
     public void incrementViewCount(Long videoId) {
         LOG.debug("[{}] Incrementing view count for video {}", replicaId, videoId);
 
-        // 1. Pronađi ili kreiraj zapis u tabeli TRENUTNE replike
         ViewCount viewCount = viewCountRepository
                 .findByVideoIdForUpdate(videoId, replicaId)
                 .orElseGet(() -> {
@@ -71,14 +80,23 @@ public class CRDTViewCountService {
                     return new ViewCount(videoId, replicaId);
                 });
 
-        // 2. Inkrementuj
         viewCount.increment();
         viewCountRepository.save(viewCount);
 
         LOG.debug("[{}] View count incremented for video {}: new count = {}",
                 replicaId, videoId, viewCount.getCount());
 
-        // 3. Push update drugim replikama
+        // Beleženje u ViewLog za ETL pipeline
+        LocalDate today = LocalDate.now();
+        videoRepository.findById(videoId).ifPresent(video -> {
+            ViewLog viewLog = viewLogRepository
+                    .findByVideoIdAndViewDate(videoId, today)
+                    .orElseGet(() -> new ViewLog(video, today));
+            viewLog.increment();
+            viewLogRepository.save(viewLog);
+            LOG.debug("[{}] ViewLog updated for video {}: count={}", replicaId, videoId, viewLog.getViewCount());
+        });
+
         if (pushEnabled) {
             syncService.pushUpdateToOtherReplicas(videoId);
         }

@@ -122,6 +122,9 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/videos").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/videos/*/comments/*").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/benchmark/run").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/popular-videos").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/popular-videos/run").hasRole("ADMIN")
+                .requestMatchers("/actuator/**").permitAll()
 
                 // Sve ostalo zahteva autentifikaciju
                 .anyRequest().authenticated()

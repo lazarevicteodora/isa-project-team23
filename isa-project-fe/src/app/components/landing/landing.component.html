@@ -1,7 +1,7 @@
 <div class="landing-container">
   <nav class="navbar">
     <div class="navbar-brand">
-      <h1>Jutjubić</h1>
+      <h1>JutjubiĆ</h1>
     </div>
     <div class="navbar-menu">
       <button class="btn btn-upload" routerLink="/upload">Postavi Video</button>
@@ -27,8 +27,33 @@
       {{ errorMessage }}
     </div>
 
+    <!-- Popularni videi - samo za ulogovane korisnike -->
+    <div *ngIf="currentUser && popularVideos.length > 0" class="popular-section">
+      <h2 class="popular-title">🔥 Najpopularniji videi</h2>
+      <div class="popular-grid">
+        <div class="popular-card" *ngFor="let video of popularVideos" 
+             [routerLink]="['/video', video.videoId]">
+          <div class="popular-rank">
+            <span *ngIf="video.rankPosition === 1">🥇</span>
+            <span *ngIf="video.rankPosition === 2">🥈</span>
+            <span *ngIf="video.rankPosition === 3">🥉</span>
+          </div>
+          <div class="popular-thumbnail">
+            <img [src]="video.thumbnailUrl" [alt]="video.title" 
+                 (error)="onImgError($event)">
+          </div>
+          <div class="popular-info">
+            <h3>{{ video.title }}</h3>
+            <p class="popular-author">👤 {{ video.authorUsername }}</p>
+            <p class="popular-score">⭐ Score: {{ video.popularityScore | number:'1.0-0' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Svi videi -->
     <div class="welcome-message" *ngIf="!loading">
-      <h3>🚀 Dobrodošli na Jutjubić platformu!</h3>
+      <h3>🚀 Dobrodošli na JutjubiĆ platformu!</h3>
       <p>Ovo je YouTube-like platforma za deljenje video sadržaja.</p>
       <p><strong>Princip:</strong> BEZ REKLAMA - IKADA! 🎯</p>
     </div>
@@ -41,11 +66,8 @@
       <div class="video-card" *ngFor="let video of videos; trackBy: trackByVideoId">
         <a [routerLink]="['/video', video.id]" class="video-card-link">
           <div class="video-thumbnail">
-            <img 
-              [src]="video.thumbnailUrl" 
-              [alt]="video.title" 
-              (error)="onImgError($event)"
-              loading="lazy">
+            <img [src]="video.thumbnailUrl" [alt]="video.title" 
+                 (error)="onImgError($event)" loading="lazy">
             <div class="play-overlay">
               <div class="play-button">▶</div>
             </div>
@@ -54,12 +76,13 @@
             <h3>{{ video.title }}</h3>
             <p class="video-description">{{ video.description }}</p>
             <div class="video-author">
-              <a [routerLink]="['/profile', video.authorId]" class="author-link" (click)="$event.stopPropagation()">
+              <a [routerLink]="['/profile', video.authorId]" class="author-link" 
+                 (click)="$event.stopPropagation()">
                 👤 {{ video.authorUsername }}
               </a>
             </div>
             <div class="video-meta">
-              <span class="view-count">👁️ {{ video.viewCount || 0 }} pregleda</span>
+              <span class="view-count">👁 {{ video.viewCount || 0 }} pregleda</span>
               <span class="video-date">📅 {{ video.createdAt | parseDate | date:'dd.MM.yyyy HH:mm' }}</span>
             </div>
           </div>
