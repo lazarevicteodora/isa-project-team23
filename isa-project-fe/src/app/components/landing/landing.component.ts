@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { User } from '../../models/user.model';
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
+import { PopularVideoService, PopularVideo } from '../../services/popular-video.service';
 
 @Component({
   selector: 'app-landing',
@@ -13,6 +14,7 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class LandingComponent implements OnInit {
   videos: Video[] = [];
+  popularVideos: PopularVideo[] = [];
   loading: boolean = true;
   errorMessage: string = '';
   currentUser: User | null = null;
@@ -21,6 +23,7 @@ export class LandingComponent implements OnInit {
     private videoService: VideoService,
     private userService: UserService, 
     private authService: AuthService,
+    private popularVideoService: PopularVideoService,
     private router: Router
   ) {}
   
@@ -33,10 +36,28 @@ export class LandingComponent implements OnInit {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         this.currentUser = user;
+        // Učitaj popularne videe samo ako je korisnik ulogovan
+        this.loadPopularVideos();
       },
       error: (err) => {
         console.log('Korisnik nije ulogovan (javni pristup)');
         this.currentUser = null;
+      }
+    });
+  }
+
+  loadPopularVideos(): void {
+    this.popularVideoService.getPopularVideos().subscribe({
+      next: (data) => {
+        this.popularVideos = data.map(v => ({
+          ...v,
+          thumbnailUrl: this.normalizeUrl(v.thumbnailUrl),
+          videoUrl: this.normalizeUrl(v.videoUrl)
+        }));
+        console.log('Popularni videi učitani:', this.popularVideos.length);
+      },
+      error: (err) => {
+        console.error('Greška pri učitavanju popularnih videa:', err);
       }
     });
   }
@@ -50,12 +71,9 @@ export class LandingComponent implements OnInit {
           videoUrl: this.normalizeUrl(video.videoUrl)
         }));
         this.loading = false;
-        
-        console.log('✅ Videos loaded:', this.videos.length);
-        console.log('📸 First video thumbnail:', this.videos[0]?.thumbnailUrl);
       },
       error: (err) => {
-        console.error('❌ Greška pri učitavanju videa', err);
+        console.error('Greška pri učitavanju videa', err);
         this.errorMessage = 'Greška pri učitavanju videa';
         this.loading = false;
       }
@@ -73,7 +91,6 @@ export class LandingComponent implements OnInit {
   }
 
   onImgError(event: any): void {
-    console.error('❌ Image load failed for:', event.target.src);
     event.target.src = 'assets/default-thumbnail.png';
   }
 
