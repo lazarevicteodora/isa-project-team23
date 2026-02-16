@@ -17,10 +17,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -69,6 +72,50 @@ public class VideoController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping(value = "/{id}/thumbnail/compressed", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<Resource> getCompressedThumbnail(@PathVariable Long id) {
+        try {
+            Video video = videoService.getVideoById(id);
+
+            // Prvo pokušaj da koristiš kompresovanu verziju
+            String thumbnailPath = video.getThumbnailCompressedPath();
+
+            // Fallback na originalnu ako kompresovana ne postoji
+            if (thumbnailPath == null || thumbnailPath.isEmpty()) {
+                thumbnailPath = video.getThumbnailPath();
+            }
+
+            Path path = Paths.get(thumbnailPath);
+
+            // Proveri da li fajl postoji
+            if (!Files.exists(path)) {
+                // Ako kompresovana ne postoji, probaj originalnu
+                if (video.getThumbnailCompressedPath() != null) {
+                    path = Paths.get(video.getThumbnailPath());
+                }
+
+                if (!Files.exists(path)) {
+                    return ResponseEntity.notFound().build();
+                }
+            }
+
+            Resource resource = new UrlResource(path.toUri());
+
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // GET detalji videa po ID-u
     @GetMapping("/{id}")
     public ResponseEntity<VideoResponseDTO> getVideo(@PathVariable Long id) {
@@ -148,5 +195,47 @@ public class VideoController {
     public ResponseEntity<String> incrementViewCountCRDT(@PathVariable Long id) {
         crdtViewCountService.incrementViewCount(id);
         return ResponseEntity.ok("View count incremented on " + System.getenv("REPLICA_ID"));
+    }
+
+    /**
+     * Endpoint za proveru streaming statusa videa
+     */
+    @GetMapping("/{id}/streaming-status")
+    public ResponseEntity<Map<String, Object>> getStreamingStatus(@PathVariable Long id) {
+        try {
+            Video video = videoService.getVideoById(id);
+
+            Map<String, Object> status = new HashMap<>();
+            status.put("isScheduled", video.getIsScheduled());
+            status.put("scheduledFor", video.getScheduledFor());
+
+            if (video.getIsScheduled() != null && video.getIsScheduled()) {
+                LocalDateTime now = LocalDateTime.now();
+
+                if (now.isBefore(video.getScheduledFor())) {
+                    // Video još nije počeo
+                    status.put("status", "UPCOMING");
+                    long secondsUntilStart = java.time.Duration.between(now, video.getScheduledFor()).getSeconds();
+                    status.put("startsIn", secondsUntilStart);
+                    status.put("currentOffset", null);
+                } else {
+                    // Video je LIVE
+                    status.put("status", "LIVE");
+                    long secondsSinceStart = java.time.Duration.between(video.getScheduledFor(), now).getSeconds();
+                    status.put("currentOffset", Math.max(0, secondsSinceStart));
+                    status.put("startsIn", null);
+                }
+            } else {
+                // Normalan video
+                status.put("status", "NORMAL");
+                status.put("startsIn", null);
+                status.put("currentOffset", null);
+            }
+
+            return ResponseEntity.ok(status);
+
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
     }

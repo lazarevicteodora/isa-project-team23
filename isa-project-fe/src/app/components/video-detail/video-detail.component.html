@@ -32,16 +32,47 @@
     <!-- Video Content -->
     <div *ngIf="video && !loading" class="video-content">
       
-      <!-- Video Player -->
-      <div class="video-player-container">
-        <video 
-          class="video-player"
-          controls
-          autoplay>
-          <source [src]="'http://localhost:8080/api/videos/' + video.id + '/stream'" type="video/mp4">
-          Vaš pretraživač ne podržava video tag.
-        </video>
-      </div>
+     <!-- Video Player -->
+<div class="video-player-container">
+  
+  <!-- ========== UPCOMING STATUS (video još nije počeo) ========== -->
+  <div *ngIf="streamingStatus === 'UPCOMING'" class="upcoming-banner">
+    <div class="upcoming-content">
+      <h2>🔴 Zakazana Premijera</h2>
+      <p class="premiere-time">
+        Počinje: {{ video?.scheduledFor | date:'dd.MM.yyyy u HH:mm' }}
+      </p>
+      <p class="countdown" *ngIf="startsIn !== null">
+        ⏰ Za <strong>{{ formatTime(startsIn) }}</strong>
+      </p>
+      <p class="upcoming-hint">
+        💡 Video će automatski početi u zakazano vreme
+      </p>
+    </div>
+  </div>
+  
+  <!-- ========== LIVE STREAMING (video je u toku) ========== -->
+  <video 
+    *ngIf="streamingStatus === 'LIVE'"
+    #videoPlayer
+    class="video-player"
+    controls
+    autoplay>
+    <source [src]="'http://localhost:8080/api/videos/' + video.id + '/stream'" type="video/mp4">
+    Vaš pretraživač ne podržava video tag.
+  </video>
+  
+  <!-- ========== NORMAL VIDEO (nije scheduled) ========== -->
+  <video 
+    *ngIf="streamingStatus === 'NORMAL'"
+    class="video-player"
+    controls
+    autoplay>
+    <source [src]="'http://localhost:8080/api/videos/' + video.id + '/stream'" type="video/mp4">
+    Vaš pretraživač ne podržava video tag.
+  </video>
+  
+</div>
 
       <!-- Video Info Section -->
       <div class="video-info-section">
@@ -100,6 +131,15 @@
           </button>
         </div>
 
+        <!-- Watch Party Section -->
+        <div class="watch-party-section">
+          <button 
+            class="btn-watch-party"
+            [routerLink]="['/watch-party/create', video.id]">
+            🎉 Pokreni Watch Party
+          </button>
+          <p class="watch-party-hint">Gledajte video zajedno sa prijateljima u realnom vremenu!</p>
+        </div>
       </div>
 
       <!-- Comments Section -->

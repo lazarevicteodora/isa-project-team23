@@ -8,6 +8,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
+import { WatchPartyService } from './services/watch-party.service';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -20,6 +21,8 @@ import { VideoUploadComponent } from './components/video-upload/video-upload.com
 import { VideoDetailComponent } from './components/video-detail/video-detail.component'; 
 import { ProfileComponent } from './components/profile/profile.component';
 import { ParseDatePipe } from './pipes/date-parser.pipe'; 
+import { WatchPartyComponent } from './components/watch-party/watch-party.component';
+import { WatchPartyCreateComponent } from './components/watch-party-create/watch-party-create.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +35,9 @@ import { ParseDatePipe } from './pipes/date-parser.pipe';
     VideoUploadComponent,
     VideoDetailComponent,
     ProfileComponent,
-    ParseDatePipe
+    ParseDatePipe,
+    WatchPartyComponent,
+    WatchPartyCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +48,7 @@ import { ParseDatePipe } from './pipes/date-parser.pipe';
   providers: [
     AuthService,
     UserService,
+    WatchPartyService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

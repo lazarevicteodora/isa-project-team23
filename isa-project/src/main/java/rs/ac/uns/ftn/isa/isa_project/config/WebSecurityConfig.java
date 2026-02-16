@@ -15,11 +15,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import rs.ac.uns.ftn.isa.isa_project.security.RestAuthenticationEntryPoint;
 import rs.ac.uns.ftn.isa.isa_project.security.TokenAuthenticationFilter;
 import rs.ac.uns.ftn.isa.isa_project.service.CustomUserDetailsService;
 import rs.ac.uns.ftn.isa.isa_project.util.TokenUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,9 +45,7 @@ public class WebSecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
-
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
@@ -56,6 +60,22 @@ public class WebSecurityConfig {
     @Autowired
     private TokenUtils tokenUtils;
 
+    // ✅ DODAJ CORS Configuration Bean
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -67,10 +87,22 @@ public class WebSecurityConfig {
                 exception.authenticationEntryPoint(restAuthenticationEntryPoint)
         );
 
+        // ✅ Koristi custom CORS konfiguraciju
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
         http.authorizeHttpRequests(auth -> auth
+                // WebSocket endpoint - javno dostupni
+                .requestMatchers("/ws/**").permitAll()
+
                 // Auth endpoint-i - javno dostupni
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/user/*").permitAll()
+
+                // ✅ OPTIONS requests MORAJU biti dozvoljeni za CORS preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Watch Party endpoints - authenticated
+                .requestMatchers("/api/watch-party/**").authenticated()
 
                 // Video GET endpoint-i - javno dostupni (ZADATAK 3.1)
                 .requestMatchers(HttpMethod.GET, "/api/videos").permitAll()
@@ -97,8 +129,6 @@ public class WebSecurityConfig {
                 // Sve ostalo zahteva autentifikaciju
                 .anyRequest().authenticated()
         );
-
-        http.cors(cors -> cors.configure(http));
 
         http.csrf(csrf -> csrf.disable());
 

@@ -37,4 +37,6 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT v FROM Video v WHERE v.id = :id")
     Optional<Video> findByIdForUpdate(@Param("id") Long id);
+
+    List<Video> findByCreatedAtBefore(LocalDateTime date);
 }
