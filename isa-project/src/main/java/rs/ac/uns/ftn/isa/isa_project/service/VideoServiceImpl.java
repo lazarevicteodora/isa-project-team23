@@ -64,7 +64,13 @@ public class VideoServiceImpl implements VideoService {
             video.setAuthor(author);
             video.setVideoPath(videoPath);
             video.setThumbnailPath(thumbnailPath);
-
+            if (dto.getScheduledFor() != null) {
+                video.setIsScheduled(true);
+                video.setScheduledFor(dto.getScheduledFor());
+                logger.info("Video zakazan za: {}", dto.getScheduledFor());
+            } else {
+                video.setIsScheduled(false);
+            }
             return videoRepository.save(video);
 
         } catch (TimeoutException e) {

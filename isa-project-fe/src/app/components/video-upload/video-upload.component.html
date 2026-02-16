@@ -129,6 +129,23 @@
           </div>
         </div>
 
+
+<!-- Zakazivanje prikaza -->
+<div class="form-group">
+  <label for="scheduledFor">📅 Zakažite Prikaz (opciono)</label>
+  <input 
+    type="datetime-local" 
+    id="scheduledFor" 
+    [(ngModel)]="scheduledFor" 
+    name="scheduledFor"
+    placeholder="Izaberite datum i vreme premiere">
+  <small style="color: #7f8c8d; display: block; margin-top: 0.5rem;">
+    💡 Ako izaberete vreme, video će biti dostupan samo od tog trenutka kao streaming premiere.
+  </small>
+</div>
+
+
+
         <!-- Submit Button -->
         <div class="form-actions">
           <button type="submit" class="btn btn-upload">

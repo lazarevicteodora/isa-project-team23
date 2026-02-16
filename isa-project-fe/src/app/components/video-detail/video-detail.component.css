@@ -590,4 +590,140 @@
   .content {
     padding: 1rem 0.5rem;
   }
+
+/* ========== SCHEDULED STREAMING STYLING - FIXED ========== */
+
+.upcoming-banner {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.upcoming-content {
+  text-align: center;
+  color: white !important;  /* ← IMPORTANT! */
+  max-width: 500px;
+}
+
+.upcoming-content h2 {
+  font-size: 2.5rem;
+  margin: 0 0 1.5rem 0;
+  font-weight: 800;
+  color: white !important;  /* ← IMPORTANT! */
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.premiere-time {
+  font-size: 1.3rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  color: white !important;  /* ← IMPORTANT! */
+}
+
+.countdown {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+  padding: 1rem 2rem;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  color: white !important;  /* ← IMPORTANT! */
+}
+
+.countdown strong {
+  font-size: 1.8rem;
+  color: #ffd700 !important;  /* ← Gold color */
+  font-weight: 800;
+}
+
+.upcoming-hint {
+  font-size: 0.95rem;
+  margin-top: 1.5rem;
+  opacity: 0.9;
+  font-style: italic;
+  color: white !important;  /* ← IMPORTANT! */
+}
+/* ========== SCHEDULED STREAMING - FORCE WHITE TEXT ========== */
+
+.video-player-container .upcoming-banner {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.video-player-container .upcoming-banner * {
+  color: white !important;  /* SVE u banneru mora biti belo */
+}
+
+.video-player-container .upcoming-content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.video-player-container .upcoming-content h2 {
+  font-size: 2.8rem;
+  margin: 0 0 1.5rem 0;
+  font-weight: 800;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.video-player-container .premiere-time {
+  font-size: 1.4rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.video-player-container .countdown {
+  font-size: 1.6rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem 2.5rem;
+  background: rgba(255,255,255,0.25);
+  border-radius: 15px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.video-player-container .countdown strong {
+  font-size: 2rem;
+  color: #ffd700 !important;
+  font-weight: 900;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.video-player-container .upcoming-hint {
+  font-size: 1rem;
+  margin-top: 2rem;
+  opacity: 0.95;
+  font-style: italic;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.85; 
+    transform: scale(1.02);
+  }
+}
 }

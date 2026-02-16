@@ -99,4 +99,18 @@ incrementViewCRDT(videoId: number): Observable<any> {
   return this.http.post(`${this.apiUrl}/${videoId}/view-crdt`, {});
 }
 
+// ========== SCHEDULED STREAMING ==========
+
+// Dohvatanje streaming statusa videa
+getStreamingStatus(videoId: number): Observable<{
+  isScheduled: boolean;
+  scheduledFor: string | null;
+  status: 'UPCOMING' | 'LIVE' | 'NORMAL';
+  startsIn: number | null;
+  currentOffset: number | null;
+}> {
+  return this.http.get<any>(`${this.apiUrl}/${videoId}/streaming-status`);
+}
+
+// ========== KRAJ ==========
 }

@@ -47,6 +47,16 @@ public class Video {
     @Column(name = "view_count", nullable = false)
     private Long viewCount = 0L;
 
+    // Scheduled streaming polja
+    @Column(name = "is_scheduled")
+    private Boolean isScheduled = false;
+
+    @Column(name = "scheduled_for")
+    private LocalDateTime scheduledFor;
+
+    @Column(name = "stream_started_at")
+    private LocalDateTime streamStartedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
@@ -255,5 +265,29 @@ public class Video {
                 ", channel=" + (channel != null ? channel.getName() : "null") +
                 ", category=" + (category != null ? category.getName() : "null") +
                 '}';
+    }
+
+    public Boolean getIsScheduled() {
+        return isScheduled;
+    }
+
+    public void setIsScheduled(Boolean scheduled) {
+        isScheduled = scheduled;
+    }
+
+    public LocalDateTime getScheduledFor() {
+        return scheduledFor;
+    }
+
+    public void setScheduledFor(LocalDateTime scheduledFor) {
+        this.scheduledFor = scheduledFor;
+    }
+
+    public LocalDateTime getStreamStartedAt() {
+        return streamStartedAt;
+    }
+
+    public void setStreamStartedAt(LocalDateTime streamStartedAt) {
+        this.streamStartedAt = streamStartedAt;
     }
 }

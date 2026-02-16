@@ -14,4 +14,8 @@ export interface Video {
   longitude?: number;
   likeCount?: number;
   commentCount?: number;
+  isScheduled?: boolean;
+  scheduledFor?: string;  // ISO string (2026-02-15T20:30:00)
+  streamingStatus?: 'UPCOMING' | 'LIVE' | null;  // status videa
+  currentOffset?: number;  // u sekundama - offset od početka
 }

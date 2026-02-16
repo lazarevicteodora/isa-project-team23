@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 import rs.ac.uns.ftn.isa.isa_project.validation.FileExtension;
 import rs.ac.uns.ftn.isa.isa_project.validation.FileSize;
+
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class VideoUploadDTO {
@@ -31,6 +33,9 @@ public class VideoUploadDTO {
     private Double latitude;
     private Double longitude;
 
+    private LocalDateTime scheduledFor; // opciono - za zakazani streaming
+
+
     // ==================== Constructors ====================
 
     public VideoUploadDTO() {
@@ -50,6 +55,13 @@ public class VideoUploadDTO {
     }
 
     // ==================== Getters and Setters ====================
+    public LocalDateTime getScheduledFor() {
+        return scheduledFor;
+    }
+
+    public void setScheduledFor(LocalDateTime scheduledFor) {
+        this.scheduledFor = scheduledFor;
+    }
 
     public String getTitle() {
         return title;
