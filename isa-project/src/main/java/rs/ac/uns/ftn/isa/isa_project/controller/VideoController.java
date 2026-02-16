@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -69,6 +70,50 @@ public class VideoController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping(value = "/{id}/thumbnail/compressed", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<Resource> getCompressedThumbnail(@PathVariable Long id) {
+        try {
+            Video video = videoService.getVideoById(id);
+
+            // Prvo pokušaj da koristiš kompresovanu verziju
+            String thumbnailPath = video.getThumbnailCompressedPath();
+
+            // Fallback na originalnu ako kompresovana ne postoji
+            if (thumbnailPath == null || thumbnailPath.isEmpty()) {
+                thumbnailPath = video.getThumbnailPath();
+            }
+
+            Path path = Paths.get(thumbnailPath);
+
+            // Proveri da li fajl postoji
+            if (!Files.exists(path)) {
+                // Ako kompresovana ne postoji, probaj originalnu
+                if (video.getThumbnailCompressedPath() != null) {
+                    path = Paths.get(video.getThumbnailPath());
+                }
+
+                if (!Files.exists(path)) {
+                    return ResponseEntity.notFound().build();
+                }
+            }
+
+            Resource resource = new UrlResource(path.toUri());
+
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // GET detalji videa po ID-u
     @GetMapping("/{id}")
     public ResponseEntity<VideoResponseDTO> getVideo(@PathVariable Long id) {
