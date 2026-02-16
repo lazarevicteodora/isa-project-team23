@@ -1,7 +1,6 @@
 package rs.ac.uns.ftn.isa.isa_project.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.util.Timestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,7 +11,6 @@ import rs.ac.uns.ftn.isa.isa_project.dto.UploadEvent;
 import rs.ac.uns.ftn.isa.isa_project.proto.UploadEventProto;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +25,21 @@ public class BenchmarkService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UploadEventJsonConsumer jsonConsumer;
+
+    @Autowired
+    private UploadEventProtobufConsumer protobufConsumer;
+
     @Value("${rabbitmq.benchmark.exchange:upload.events.exchange}")
     private String exchange;
 
-    public BenchmarkResult runBenchmark(int messageCount) {
+    public BenchmarkResult runBenchmark(int messageCount) throws InterruptedException {
         LOG.info("Starting benchmark with {} messages", messageCount);
+
+        // Reset consumera
+        jsonConsumer.reset();
+        protobufConsumer.reset();
 
         BenchmarkResult result = new BenchmarkResult();
 
@@ -40,6 +48,14 @@ public class BenchmarkService {
 
         // Protobuf Benchmark
         result.protobufResults = benchmarkProtobuf(messageCount);
+
+        // Čekaj da consumeri obrade sve poruke (max 5 sekundi)
+        LOG.info("Waiting for consumers to process messages...");
+        Thread.sleep(5000);
+
+        // Pročitaj deserijalizaciju
+        result.jsonResults.avgDeserializationTimeMs = jsonConsumer.getAverageDeserializationTimeMs();
+        result.protobufResults.avgDeserializationTimeMs = protobufConsumer.getAverageDeserializationTimeMs();
 
         LOG.info("Benchmark completed!");
         return result;
@@ -132,6 +148,7 @@ public class BenchmarkService {
     public static class FormatResult {
         public String format;
         public double avgSerializationTimeMs;
+        public double avgDeserializationTimeMs;
         public double avgMessageSizeBytes;
         public int messageCount;
 
@@ -141,7 +158,7 @@ public class BenchmarkService {
             this.avgSerializationTimeMs = serializationTimes.stream()
                     .mapToLong(Long::longValue)
                     .average()
-                    .orElse(0.0) / 1_000_000.0; // nano to milli
+                    .orElse(0.0) / 1_000_000.0;
             this.avgMessageSizeBytes = sizes.stream()
                     .mapToInt(Integer::intValue)
                     .average()
