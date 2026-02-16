@@ -23,4 +23,7 @@ public interface ViewLogRepository extends JpaRepository<ViewLog, Long> {
     // Vraća view logove za konkretan video u poslednjih 7 dana
     @Query("SELECT vl FROM ViewLog vl WHERE vl.video.id = :videoId AND vl.viewDate >= :since")
     List<ViewLog> findByVideoIdSince(@Param("videoId") Long videoId, @Param("since") LocalDate since);
+
+    @Query("SELECT COUNT(DISTINCT vl.video.author.id) FROM ViewLog vl WHERE vl.viewDate = :today")
+    long countDistinctUsersToday(@Param("today") LocalDate today);
 }
