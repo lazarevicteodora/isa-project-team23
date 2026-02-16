@@ -17,7 +17,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -193,5 +195,47 @@ public class VideoController {
     public ResponseEntity<String> incrementViewCountCRDT(@PathVariable Long id) {
         crdtViewCountService.incrementViewCount(id);
         return ResponseEntity.ok("View count incremented on " + System.getenv("REPLICA_ID"));
+    }
+
+    /**
+     * Endpoint za proveru streaming statusa videa
+     */
+    @GetMapping("/{id}/streaming-status")
+    public ResponseEntity<Map<String, Object>> getStreamingStatus(@PathVariable Long id) {
+        try {
+            Video video = videoService.getVideoById(id);
+
+            Map<String, Object> status = new HashMap<>();
+            status.put("isScheduled", video.getIsScheduled());
+            status.put("scheduledFor", video.getScheduledFor());
+
+            if (video.getIsScheduled() != null && video.getIsScheduled()) {
+                LocalDateTime now = LocalDateTime.now();
+
+                if (now.isBefore(video.getScheduledFor())) {
+                    // Video još nije počeo
+                    status.put("status", "UPCOMING");
+                    long secondsUntilStart = java.time.Duration.between(now, video.getScheduledFor()).getSeconds();
+                    status.put("startsIn", secondsUntilStart);
+                    status.put("currentOffset", null);
+                } else {
+                    // Video je LIVE
+                    status.put("status", "LIVE");
+                    long secondsSinceStart = java.time.Duration.between(video.getScheduledFor(), now).getSeconds();
+                    status.put("currentOffset", Math.max(0, secondsSinceStart));
+                    status.put("startsIn", null);
+                }
+            } else {
+                // Normalan video
+                status.put("status", "NORMAL");
+                status.put("startsIn", null);
+                status.put("currentOffset", null);
+            }
+
+            return ResponseEntity.ok(status);
+
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
     }

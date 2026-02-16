@@ -20,8 +20,10 @@ public class VideoResponseDTO {
 
     private Long likeCount = 0L;
     private Long commentCount = 0L;
-
-    public VideoResponseDTO() {}
+    private Boolean isScheduled;
+    private LocalDateTime scheduledFor;
+    private String streamingStatus; // "UPCOMING", "LIVE", "ENDED", ili null
+    private Long currentOffset; // u sekundama - koliko je video već prošao    public VideoResponseDTO() {}
 
     public VideoResponseDTO(Video video) {
         this.id = video.getId();
@@ -36,6 +38,28 @@ public class VideoResponseDTO {
         this.viewCount = video.getViewCount();
         this.latitude = video.getLatitude();
         this.longitude = video.getLongitude();
+        this.isScheduled = video.getIsScheduled();
+        this.scheduledFor = video.getScheduledFor();
+
+
+// Izračunaj streaming status i offset
+        if (video.getIsScheduled() != null && video.getIsScheduled()) {
+            LocalDateTime now = LocalDateTime.now();
+
+            if (now.isBefore(video.getScheduledFor())) {
+                this.streamingStatus = "UPCOMING";
+                this.currentOffset = null;
+            } else {
+                this.streamingStatus = "LIVE";
+                // Koliko sekundi je prošlo od zakazanog vremena
+                long seconds = java.time.Duration.between(video.getScheduledFor(), now).getSeconds();
+                this.currentOffset = Math.max(0, seconds);
+            }
+        } else {
+            this.streamingStatus = null; // normalan video
+            this.currentOffset = null;
+        }
+
     }
 
     // Getters and Setters
@@ -144,5 +168,36 @@ public class VideoResponseDTO {
 
     public void setCommentCount(Long commentCount) {
         this.commentCount = commentCount;
+    }
+    public Boolean getIsScheduled() {
+        return isScheduled;
+    }
+
+    public void setIsScheduled(Boolean scheduled) {
+        isScheduled = scheduled;
+    }
+
+    public LocalDateTime getScheduledFor() {
+        return scheduledFor;
+    }
+
+    public void setScheduledFor(LocalDateTime scheduledFor) {
+        this.scheduledFor = scheduledFor;
+    }
+
+    public String getStreamingStatus() {
+        return streamingStatus;
+    }
+
+    public void setStreamingStatus(String streamingStatus) {
+        this.streamingStatus = streamingStatus;
+    }
+
+    public Long getCurrentOffset() {
+        return currentOffset;
+    }
+
+    public void setCurrentOffset(Long currentOffset) {
+        this.currentOffset = currentOffset;
     }
 }

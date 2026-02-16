@@ -281,3 +281,25 @@
   font-size: 0.9rem;
   margin-top: 1rem;
 }
+
+/* ========== SCHEDULED STREAMING STYLING ========== */
+.form-group input[type="datetime-local"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  cursor: pointer;
+}
+
+.form-group input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: #ff4d4f;
+}
+
+.form-group small {
+  font-size: 0.85rem;
+  font-style: italic;
+}
+/* ========== KRAJ ========== */
