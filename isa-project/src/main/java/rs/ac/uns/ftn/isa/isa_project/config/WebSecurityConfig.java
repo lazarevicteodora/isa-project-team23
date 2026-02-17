@@ -90,6 +90,8 @@ public class WebSecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/ws/**").permitAll()  // ← MORA BITI PRVO!
+
                 // WebSocket endpoint - javno dostupni
                 .requestMatchers("/ws/**").permitAll()
 

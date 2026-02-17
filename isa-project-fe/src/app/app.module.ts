@@ -20,7 +20,8 @@ import { LandingComponent } from './components/landing/landing.component';
 import { VideoUploadComponent } from './components/video-upload/video-upload.component';
 import { VideoDetailComponent } from './components/video-detail/video-detail.component'; 
 import { ProfileComponent } from './components/profile/profile.component';
-import { ParseDatePipe } from './pipes/date-parser.pipe'; 
+import { ParseDatePipe } from './pipes/date-parser.pipe';
+import { StreamChatComponent } from './components/stream-chat/stream-chat.component'; 
 import { WatchPartyComponent } from './components/watch-party/watch-party.component';
 import { WatchPartyCreateComponent } from './components/watch-party-create/watch-party-create.component';
 
@@ -36,6 +37,7 @@ import { WatchPartyCreateComponent } from './components/watch-party-create/watch
     VideoDetailComponent,
     ProfileComponent,
     ParseDatePipe,
+    StreamChatComponent,
     WatchPartyComponent,
     WatchPartyCreateComponent
   ],

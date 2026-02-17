@@ -1,0 +1,74 @@
+<div class="chat-container" [class.chat-open]="chatOpen" *ngIf="videoId && username">
+  <!-- Chat Header -->
+  <div class="chat-header" (click)="toggleChat()">
+    <div class="chat-title">
+      <i class="fas fa-comments"></i>
+      <span>Live Chat</span>
+      <span class="user-count">
+        <i class="fas fa-user"></i> {{ activeUsers }}
+      </span>
+    </div>
+    <button class="toggle-btn">
+      <i [class]="chatOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-up'"></i>
+    </button>
+  </div>
+
+  <!-- Chat Body -->
+  <div class="chat-body" *ngIf="chatOpen">
+    <!-- Connection Status -->
+    <div class="connection-status" *ngIf="connectionStatus !== 'connected'">
+      <div *ngIf="connectionStatus === 'disconnected'" class="status-badge disconnected">
+        <i class="fas fa-circle"></i> Povezivanje...
+      </div>
+      <div *ngIf="connectionStatus === 'error'" class="status-badge error">
+        <i class="fas fa-exclamation-circle"></i> Greška pri konekciji
+        <button class="retry-btn" (click)="retryConnection()">Pokušaj ponovo</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" #chatMessages>
+      <div class="message" *ngFor="let msg of messages" 
+           [class.own-message]="msg.username === username">
+        <div class="message-bubble">
+          <div class="message-header">
+            <span class="username">{{ msg.username }}</span>
+            <span class="timestamp">{{ formatTime(msg.timestamp) }}</span>
+          </div>
+          <div class="message-text">{{ msg.message }}</div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="messages.length === 0 && connectionStatus === 'connected'">
+        <i class="fas fa-comment-dots"></i>
+        <p>Nema poruka. Budi prvi koji će pisati!</p>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="chat-input">
+      <input 
+        type="text" 
+        [(ngModel)]="newMessage"
+        (keyup.enter)="sendMessage()"
+        [disabled]="connectionStatus !== 'connected' || isSubmittingMessage"
+        placeholder="Napiši poruku..."
+        class="message-input"
+      />
+      <button 
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim() || connectionStatus !== 'connected' || isSubmittingMessage"
+        class="send-btn"
+      >
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-triangle"></i>
+      {{ errorMessage }}
+    </div>
+  </div>
+</div>

@@ -15,18 +15,20 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.*;
+import rs.ac.uns.ftn.isa.isa_project.controller.StreamingChatWebSocketHandler;
 import rs.ac.uns.ftn.isa.isa_project.util.TokenUtils;
 import rs.ac.uns.ftn.isa.isa_project.service.CustomUserDetailsService;
 
 /**
- * WebSocket konfiguracija za Watch Party funkcionalnost.
+ * Jedinstvena WebSocket konfiguracija za:
+ * 1. Watch Party (STOMP WebSocket na /ws)
+ * 2. Stream Chat (Raw WebSocket na /ws/stream-chat/{videoId})
  */
 @Configuration
-@EnableWebSocketMessageBroker
-public class WatchPartyConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocketMessageBroker  // Za STOMP (Watch Party)
+@EnableWebSocket               // Za Raw WebSocket (Stream Chat)
+public class WatchPartyConfig implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
 
     private static final Logger LOG = LoggerFactory.getLogger(WatchPartyConfig.class);
 
@@ -36,13 +38,18 @@ public class WatchPartyConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private StreamingChatWebSocketHandler streamingChatWebSocketHandler;
+
+    // ========== STOMP WebSocket (Watch Party) ==========
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
 
-        LOG.info("✅ WebSocket endpoint registered: /ws");
+        LOG.info("✅ STOMP WebSocket endpoint registered: /ws");
     }
 
     @Override
@@ -95,5 +102,17 @@ public class WatchPartyConfig implements WebSocketMessageBrokerConfigurer {
                 return message;
             }
         });
+    }
+
+    // ========== Raw WebSocket (Stream Chat) ==========
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        LOG.info("🔧 Registering RAW WebSocket handler for Stream Chat...");
+
+        registry.addHandler(streamingChatWebSocketHandler, "/ws/stream-chat/{videoId}")
+                .setAllowedOriginPatterns("*");  // Dovoljno je samo ovo!
+
+        LOG.info("✅ RAW WebSocket endpoint registered: /ws/stream-chat/{videoId}");
     }
 }

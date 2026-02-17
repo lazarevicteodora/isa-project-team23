@@ -153,6 +153,7 @@
   border: 1px solid #ccc;
   padding: 10px;
   width: 220px;
+  position: relative;
 }
 
 .btn-upload-nav {
@@ -171,4 +172,33 @@
   background: #125a32;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+}
+
+
+
+/* LIVE Badge */
+.live-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  animation: pulse-badge 2s infinite;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+  z-index: 10;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
 }
